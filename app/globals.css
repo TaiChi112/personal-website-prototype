@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* 1. เพิ่มบรรทัดนี้: บังคับให้ Tailwind ดูที่ Class .dark เท่านั้น (Override System Pref) */
+@variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -12,11 +15,14 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* 2. ลบ @media (prefers-color-scheme: dark) และเปลี่ยนเป็น .dark แทน */
+/* @media (prefers-color-scheme: dark) { ... }  <-- ลบอันเก่านี้ออก หรือ comment ไว้
+*/
+
+/* ใช้ตัวนี้แทน: ให้เปลี่ยนตัวแปรเมื่อมี class="dark" ที่ html เท่านั้น */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
