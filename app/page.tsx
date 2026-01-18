@@ -1,10 +1,9 @@
-"use client";
 import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, Code, FileText, User, Briefcase, Menu, X, 
   Github, Linkedin, ExternalLink, ChevronRight, Calendar, 
   Tag, LayoutGrid, List, Clock, PlayCircle, Rss, 
-  Palette, Moon, Sun, Monitor // Icons for Style & Theme
+  Palette, Moon, Sun, Monitor, Globe, Type // Added Globe & Type icons
 } from 'lucide-react';
 
 // --- 1. DATA STRUCTURE DEFINITIONS (UNCHANGED) ---
@@ -51,8 +50,116 @@ const adaptBlogToUnified = (b: Blog): UnifiedContentItem => ({ id: `blog-${b.id}
 const adaptVideoToUnified = (v: ExternalVideoData): UnifiedContentItem => ({ id: `vid-${v.videoId}`, type: 'video', title: v.headline, description: v.descriptionSnippet, date: new Date(v.published_timestamp).toISOString().split('T')[0], imageUrl: v.thumbnail_high, meta: [`${v.views} views`], actionLink: '#' });
 
 // ==========================================
-// === ABSTRACT FACTORY FOR STYLES ===
+// === 1. LOCALIZATION ABSTRACT FACTORY ===
 // ==========================================
+
+// Defines the dictionary of all UI strings
+interface UILabels {
+  nav: {
+    home: string;
+    feed: string;
+    projects: string;
+    articles: string;
+    blog: string;
+    docs: string;
+    resume: string;
+  };
+  hero: {
+    titlePrefix: string;
+    titleHighlight: string;
+    description: string;
+    btnProjects: string;
+    btnArticles: string;
+  };
+  sections: {
+    feed: string;
+    feedDesc: string;
+    projects: string;
+    projectsDesc: string;
+    articles: string;
+    articlesDesc: string;
+    blog: string;
+    blogDesc: string;
+    docs: string;
+    resume: string;
+    experience: string;
+    skills: string;
+    education: string;
+    summary: string;
+  };
+  actions: {
+    readMore: string;
+    downloadPdf: string;
+    view: string;
+  };
+}
+
+// Abstract Factory for Language
+interface LocalizationFactory {
+  code: string;
+  getLabels(): UILabels;
+}
+
+// Concrete Factory: English (Default)
+const EnglishLocalization: LocalizationFactory = {
+  code: 'EN',
+  getLabels: () => ({
+    nav: { home: 'Home', feed: 'Feed', projects: 'Projects', articles: 'Articles', blog: 'Blog', docs: 'Docs', resume: 'Resume' },
+    hero: { titlePrefix: 'Building the', titleHighlight: 'Future', description: 'Full Stack Developer crafting scalable applications.', btnProjects: 'View Projects', btnArticles: 'Read Articles' },
+    sections: {
+      feed: 'Unified Feed', feedDesc: 'All content in one place.',
+      projects: 'Featured Projects', projectsDesc: 'Some of the things I\'ve built recently.',
+      articles: 'Technical Articles', articlesDesc: 'Deep dives into code and architecture.',
+      blog: 'Personal Blog', blogDesc: 'Thoughts and life updates.',
+      docs: 'Documentation',
+      resume: 'Resume', experience: 'Experience', skills: 'Skills', education: 'Education', summary: 'Summary'
+    },
+    actions: { readMore: 'Read more', downloadPdf: 'PDF', view: 'View' }
+  })
+};
+
+// Concrete Factory: Thai
+const ThaiLocalization: LocalizationFactory = {
+  code: 'TH',
+  getLabels: () => ({
+    nav: { home: 'หน้าหลัก', feed: 'ฟีดรวม', projects: 'โปรเจกต์', articles: 'บทความ', blog: 'บล็อก', docs: 'เอกสาร', resume: 'เรซูเม่' },
+    hero: { titlePrefix: 'สร้างสรรค์', titleHighlight: 'อนาคต', description: 'นักพัฒนา Full Stack ผู้หลงใหลในการสร้างแอปพลิเคชันที่ขยายตัวได้จริง', btnProjects: 'ดูผลงาน', btnArticles: 'อ่านบทความ' },
+    sections: {
+      feed: 'ฟีดรวมเนื้อหา', feedDesc: 'รวมทุกความเคลื่อนไหวไว้ที่เดียว',
+      projects: 'ผลงานแนะนำ', projectsDesc: 'สิ่งที่ผมได้สร้างขึ้นเร็วๆ นี้',
+      articles: 'บทความเทคนิค', articlesDesc: 'เจาะลึกเรื่องโค้ดและสถาปัตยกรรม',
+      blog: 'บล็อกส่วนตัว', blogDesc: 'ความคิดและเรื่องราวชีวิต',
+      docs: 'เอกสารคู่มือ',
+      resume: 'ประวัติย่อ', experience: 'ประสบการณ์ทำงาน', skills: 'ทักษะ', education: 'การศึกษา', summary: 'สรุปข้อมูล'
+    },
+    actions: { readMore: 'อ่านต่อ', downloadPdf: 'ดาวน์โหลด PDF', view: 'ดู' }
+  })
+};
+
+// ==========================================
+// === 2. TYPOGRAPHY ABSTRACT FACTORY ===
+// ==========================================
+
+interface TypographyFactory {
+  name: string;
+  getFontClass(): string;
+}
+
+const PrimaryFont: TypographyFactory = {
+  name: 'Sans',
+  getFontClass: () => 'font-sans' // Matches Tailwind default (Inter-like)
+};
+
+const SecondaryFont: TypographyFactory = {
+  name: 'Serif',
+  getFontClass: () => 'font-serif' // Matches Tailwind serif
+};
+
+
+// ==========================================
+// === 3. STYLE ABSTRACT FACTORY (UPDATED) ===
+// ==========================================
+// Note: Removed getFontFamily() to let TypographyFactory handle it
 
 interface StyleFactory {
   name: string;
@@ -61,59 +168,54 @@ interface StyleFactory {
   getButtonClass(variant?: 'primary' | 'secondary'): string;
   getNavbarClass(): string;
   getBadgeClass(type?: string): string;
-  getFontFamily(): string;
   getSectionTitleClass(): string;
 }
 
 const ModernStyle: StyleFactory = {
   name: 'Modern',
-  getMainLayoutClass: () => "bg-gray-50 dark:bg-gray-900 min-h-screen font-sans transition-colors duration-300",
+  getMainLayoutClass: () => "bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300",
   getCardClass: () => "bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden",
   getButtonClass: (variant) => variant === 'primary' 
     ? "px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all"
     : "px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all",
   getNavbarClass: () => "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50",
   getBadgeClass: () => "px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full",
-  getFontFamily: () => "font-sans",
   getSectionTitleClass: () => "text-3xl font-bold text-gray-900 dark:text-white"
 };
 
 const MinimalStyle: StyleFactory = {
   name: 'Minimal',
-  getMainLayoutClass: () => "bg-white dark:bg-black min-h-screen font-sans transition-colors duration-300",
+  getMainLayoutClass: () => "bg-white dark:bg-black min-h-screen transition-colors duration-300",
   getCardClass: () => "bg-transparent border-b border-gray-200 dark:border-gray-800 py-6 hover:opacity-80 transition-opacity",
   getButtonClass: (variant) => variant === 'primary'
     ? "px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-none uppercase tracking-widest text-xs font-bold hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"
     : "px-6 py-2 bg-transparent text-black dark:text-white border border-black dark:border-white rounded-none uppercase tracking-widest text-xs font-bold hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors",
   getNavbarClass: () => "bg-white dark:bg-black border-b-2 border-black dark:border-white sticky top-0 z-50",
   getBadgeClass: () => "px-2 py-1 border border-gray-400 text-gray-600 dark:text-gray-400 text-[10px] uppercase tracking-wider",
-  getFontFamily: () => "font-mono",
   getSectionTitleClass: () => "text-2xl font-normal text-black dark:text-white uppercase tracking-[0.2em]"
 };
 
 const FutureStyle: StyleFactory = {
   name: 'Future',
-  getMainLayoutClass: () => "bg-slate-900 dark:bg-black min-h-screen font-sans transition-colors duration-300",
+  getMainLayoutClass: () => "bg-slate-900 dark:bg-black min-h-screen transition-colors duration-300",
   getCardClass: () => "bg-slate-800/50 dark:bg-gray-900/80 backdrop-blur border border-cyan-500/30 dark:border-cyan-500/50 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all duration-300 rounded-none skew-x-[-2deg]",
   getButtonClass: (variant) => variant === 'primary'
     ? "px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold uppercase tracking-wider clip-path-slant hover:brightness-110 transition-all shadow-[0_0_10px_rgba(6,182,212,0.5)]"
     : "px-6 py-2 bg-transparent text-cyan-400 border border-cyan-500/50 font-bold uppercase tracking-wider hover:bg-cyan-950/30 transition-all",
   getNavbarClass: () => "bg-slate-900/90 border-b border-cyan-500/30 sticky top-0 z-50 shadow-[0_0_20px_rgba(6,182,212,0.15)]",
   getBadgeClass: () => "px-2 py-1 bg-cyan-950/50 text-cyan-400 border border-cyan-500/30 text-xs font-bold uppercase",
-  getFontFamily: () => "font-sans",
   getSectionTitleClass: () => "text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 uppercase italic"
 };
 
 const AcademicStyle: StyleFactory = {
   name: 'Academic',
-  getMainLayoutClass: () => "bg-[#fdfbf7] dark:bg-[#1a1a1a] min-h-screen font-serif transition-colors duration-300",
+  getMainLayoutClass: () => "bg-[#fdfbf7] dark:bg-[#1a1a1a] min-h-screen transition-colors duration-300",
   getCardClass: () => "bg-white dark:bg-[#2a2a2a] p-1 border border-gray-300 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow",
   getButtonClass: (variant) => variant === 'primary'
     ? "px-5 py-2 bg-[#8b1e3f] dark:bg-[#d4af37] text-white dark:text-black font-serif italic hover:opacity-90 transition-opacity"
     : "px-5 py-2 bg-transparent text-[#8b1e3f] dark:text-[#d4af37] border border-[#8b1e3f] dark:border-[#d4af37] font-serif italic hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
   getNavbarClass: () => "bg-[#fdfbf7] dark:bg-[#1a1a1a] border-b-4 border-double border-gray-300 dark:border-gray-600 sticky top-0 z-50",
   getBadgeClass: () => "px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 text-xs font-serif italic border border-gray-400",
-  getFontFamily: () => "font-serif",
   getSectionTitleClass: () => "text-3xl font-bold text-gray-900 dark:text-gray-100 border-b-2 border-gray-300 dark:border-gray-600 pb-2 inline-block"
 };
 
@@ -124,49 +226,60 @@ const STYLES: Record<string, StyleFactory> = {
   'academic': AcademicStyle
 };
 
+const LOCALES: Record<string, LocalizationFactory> = {
+  'en': EnglishLocalization,
+  'th': ThaiLocalization
+};
+
+const FONTS: Record<string, TypographyFactory> = {
+  'sans': PrimaryFont,
+  'serif': SecondaryFont
+};
+
 // --- 4. LAYOUT SYSTEM ---
 
 type LayoutType = 'grid' | 'list' | 'timeline';
 interface GenericLayoutProps<T> {
   items: T[];
-  renderItem: (item: T, layout: LayoutType, style: StyleFactory) => React.ReactNode;
+  renderItem: (item: T, layout: LayoutType, style: StyleFactory, labels: UILabels) => React.ReactNode;
   getDate?: (item: T) => string;
   currentStyle: StyleFactory;
+  labels: UILabels;
 }
 
-const GridLayout = <T,>({ items, renderItem, currentStyle }: GenericLayoutProps<T>) => (
+const GridLayout = <T,>({ items, renderItem, currentStyle, labels }: GenericLayoutProps<T>) => (
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-    {items.map((item, index) => <div key={index} className="h-full">{renderItem(item, 'grid', currentStyle)}</div>)}
+    {items.map((item, index) => <div key={index} className="h-full">{renderItem(item, 'grid', currentStyle, labels)}</div>)}
   </div>
 );
 
-const ListLayout = <T,>({ items, renderItem, currentStyle }: GenericLayoutProps<T>) => (
+const ListLayout = <T,>({ items, renderItem, currentStyle, labels }: GenericLayoutProps<T>) => (
   <div className="flex flex-col space-y-6 max-w-4xl mx-auto">
-    {items.map((item, index) => <div key={index} className="w-full">{renderItem(item, 'list', currentStyle)}</div>)}
+    {items.map((item, index) => <div key={index} className="w-full">{renderItem(item, 'list', currentStyle, labels)}</div>)}
   </div>
 );
 
-const TimelineLayout = <T,>({ items, renderItem, getDate, currentStyle }: GenericLayoutProps<T>) => (
+const TimelineLayout = <T,>({ items, renderItem, getDate, currentStyle, labels }: GenericLayoutProps<T>) => (
   <div className={`max-w-3xl mx-auto border-l-2 ${currentStyle.name === 'Future' ? 'border-cyan-500' : 'border-gray-300'} ml-4 md:ml-8 pl-8 py-4 space-y-12`}>
     {items.map((item, index) => (
       <div key={index} className="relative">
         <div className={`absolute -left-[41px] top-0 h-5 w-5 rounded-full border-4 ${currentStyle.name === 'Future' ? 'border-black bg-cyan-500' : 'border-white bg-gray-400'} shadow-sm`} />
         {getDate && <span className={`absolute -top-7 left-0 text-xs font-bold px-2 py-1 rounded ${currentStyle.name === 'Future' ? 'text-cyan-400 bg-black' : 'text-gray-500 bg-gray-100'}`}>{getDate(item)}</span>}
-        {renderItem(item, 'timeline', currentStyle)}
+        {renderItem(item, 'timeline', currentStyle, labels)}
       </div>
     ))}
   </div>
 );
 
-const ContentLayoutFactory = <T,>({ layout, items, renderItem, getDate, currentStyle }: { layout: LayoutType } & GenericLayoutProps<T>) => {
+const ContentLayoutFactory = <T,>({ layout, items, renderItem, getDate, currentStyle, labels }: { layout: LayoutType } & GenericLayoutProps<T>) => {
   const LayoutStrategies = { grid: GridLayout, list: ListLayout, timeline: TimelineLayout };
   const SelectedLayout = LayoutStrategies[layout] || GridLayout;
-  return <SelectedLayout items={items} renderItem={renderItem} getDate={getDate} currentStyle={currentStyle} />;
+  return <SelectedLayout items={items} renderItem={renderItem} getDate={getDate} currentStyle={currentStyle} labels={labels} />;
 };
 
 // --- 5. UI COMPONENTS ---
 
-const LayoutSwitcher = ({ current, onChange, currentStyle }: { current: LayoutType, onChange: (l: LayoutType) => void, currentStyle: StyleFactory }) => (
+const LayoutSwitcher = ({ current, onChange, currentStyle, labels }: { current: LayoutType, onChange: (l: LayoutType) => void, currentStyle: StyleFactory, labels: UILabels }) => (
   <div className={`flex p-1 rounded-lg border ${currentStyle.name === 'Future' ? 'border-cyan-500/30 bg-black/50' : 'border-gray-200 bg-gray-100'} inline-flex mb-6`}>
     {['grid', 'list', 'timeline'].map((l) => (
       <button 
@@ -175,6 +288,7 @@ const LayoutSwitcher = ({ current, onChange, currentStyle }: { current: LayoutTy
         className={`p-2 rounded-md transition-all ${current === l 
           ? (currentStyle.name === 'Future' ? 'bg-cyan-900/50 text-cyan-400 shadow-sm' : 'bg-white text-blue-600 shadow') 
           : 'text-gray-400 hover:text-gray-600'}`}
+        title={labels.actions.view}
       >
         {l === 'grid' ? <LayoutGrid size={18} /> : l === 'list' ? <List size={18} /> : <Clock size={18} />}
       </button>
@@ -182,11 +296,36 @@ const LayoutSwitcher = ({ current, onChange, currentStyle }: { current: LayoutTy
   </div>
 );
 
-const ThemeControls = ({ currentStyleKey, setStyleKey, isDark, toggleDark }: { currentStyleKey: string, setStyleKey: (k: string) => void, isDark: boolean, toggleDark: () => void }) => (
-  <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
-    <button onClick={toggleDark} className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform">
+// Updated ThemeControls to include Language and Font switches
+const ThemeControls = ({ 
+  currentStyleKey, setStyleKey, 
+  isDark, toggleDark,
+  langKey, setLangKey,
+  fontKey, setFontKey
+}: { 
+  currentStyleKey: string, setStyleKey: (k: string) => void, 
+  isDark: boolean, toggleDark: () => void,
+  langKey: string, setLangKey: (k: string) => void,
+  fontKey: string, setFontKey: (k: string) => void
+}) => (
+  <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 items-end">
+    
+    {/* Dark Mode */}
+    <button onClick={toggleDark} className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform" title="Toggle Dark Mode">
       {isDark ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-slate-700" />}
     </button>
+    
+    {/* Language Toggle */}
+    <button onClick={() => setLangKey(langKey === 'en' ? 'th' : 'en')} className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform font-bold text-xs" title="Switch Language">
+      {langKey.toUpperCase()}
+    </button>
+    
+    {/* Font Toggle */}
+    <button onClick={() => setFontKey(fontKey === 'sans' ? 'serif' : 'sans')} className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-transform" title="Switch Font">
+      <Type size={20} className="text-gray-600 dark:text-gray-300" />
+    </button>
+
+    {/* Style Picker */}
     <div className="bg-white dark:bg-gray-800 p-2 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 flex flex-col gap-2">
       <div className="text-[10px] uppercase font-bold text-gray-400 text-center">Style</div>
       {Object.keys(STYLES).map(key => (
@@ -198,27 +337,27 @@ const ThemeControls = ({ currentStyleKey, setStyleKey, isDark, toggleDark }: { c
   </div>
 );
 
-// --- 6. SECTIONS (RESTORED & UPDATED) ---
+// --- 6. SECTIONS (UPDATED WITH LOCALIZATION) ---
 
-const HeroSection = ({ currentStyle }: { currentStyle: StyleFactory }) => (
-  <div className={`flex flex-col items-center justify-center min-h-[80vh] text-center px-4 ${currentStyle.getFontFamily()}`}>
+const HeroSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, labels: UILabels }) => (
+  <div className={`flex flex-col items-center justify-center min-h-[80vh] text-center px-4`}>
     <div className={`w-32 h-32 rounded-full mb-8 flex items-center justify-center text-4xl font-bold animate-pulse ${currentStyle.name === 'Future' ? 'bg-cyan-900 text-cyan-400 shadow-[0_0_50px_rgba(6,182,212,0.5)]' : currentStyle.name === 'Minimal' ? 'bg-black text-white dark:bg-white dark:text-black border-4 border-double' : 'bg-gradient-to-tr from-blue-400 to-indigo-500 text-white shadow-xl'}`}>AD</div>
     <h1 className={`mb-4 ${currentStyle.name === 'Future' ? 'text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600' : 'text-5xl font-extrabold text-gray-900 dark:text-white'}`}>
-      Building the <span className={currentStyle.name === 'Academic' ? 'italic text-[#8b1e3f]' : 'text-blue-600'}>Future</span>
+      {labels.hero.titlePrefix} <span className={currentStyle.name === 'Academic' ? 'italic text-[#8b1e3f]' : 'text-blue-600'}>{labels.hero.titleHighlight}</span>
     </h1>
-    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mb-8 leading-relaxed">Full Stack Developer crafting scalable applications in {currentStyle.name} style.</p>
+    <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mb-8 leading-relaxed">{labels.hero.description}</p>
     <div className="flex space-x-4">
-      <button className={currentStyle.getButtonClass('primary')}>View Projects</button>
-      <button className={currentStyle.getButtonClass('secondary')}>Read Articles</button>
+      <button className={currentStyle.getButtonClass('primary')}>{labels.hero.btnProjects}</button>
+      <button className={currentStyle.getButtonClass('secondary')}>{labels.hero.btnArticles}</button>
     </div>
   </div>
 );
 
-const UnifiedFeedSection = ({ currentStyle }: { currentStyle: StyleFactory }) => {
+const UnifiedFeedSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, labels: UILabels }) => {
   const [layout, setLayout] = useState<LayoutType>('grid');
   const unifiedItems = [...MOCK_PROJECTS.map(adaptProjectToUnified), ...MOCK_BLOGS.map(adaptBlogToUnified), ...MOCK_VIDEOS.map(adaptVideoToUnified)].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const renderItem = (item: UnifiedContentItem, currentLayout: LayoutType, style: StyleFactory) => {
+  const renderItem = (item: UnifiedContentItem, currentLayout: LayoutType, style: StyleFactory, labels: UILabels) => {
     const isList = currentLayout === 'list';
     return (
       <div className={`${style.getCardClass()} h-full flex ${isList ? 'flex-row items-center' : 'flex-col'}`}>
@@ -241,19 +380,17 @@ const UnifiedFeedSection = ({ currentStyle }: { currentStyle: StyleFactory }) =>
   };
 
   return (
-    <div className={`py-12 px-4 max-w-7xl mx-auto ${currentStyle.getFontFamily()}`}>
+    <div className={`py-12 px-4 max-w-7xl mx-auto`}>
       <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 border-b border-gray-200 dark:border-gray-700 pb-4">
-        <div><h2 className={currentStyle.getSectionTitleClass()}>Unified Feed</h2><p className="text-gray-500 mt-2">All content in <span className="font-bold">{currentStyle.name}</span> style.</p></div>
-        <div className="mt-4 md:mt-0"><LayoutSwitcher current={layout} onChange={setLayout} currentStyle={currentStyle} /></div>
+        <div><h2 className={currentStyle.getSectionTitleClass()}>{labels.sections.feed}</h2><p className="text-gray-500 mt-2">{labels.sections.feedDesc}</p></div>
+        <div className="mt-4 md:mt-0"><LayoutSwitcher current={layout} onChange={setLayout} currentStyle={currentStyle} labels={labels} /></div>
       </div>
-      <ContentLayoutFactory layout={layout} items={unifiedItems} renderItem={renderItem} getDate={(item) => item.date} currentStyle={currentStyle} />
+      <ContentLayoutFactory layout={layout} items={unifiedItems} renderItem={renderItem} getDate={(item) => item.date} currentStyle={currentStyle} labels={labels} />
     </div>
   );
 };
 
-// --- RESTORED SECTIONS ---
-
-const ProjectsSection = ({ currentStyle }: { currentStyle: StyleFactory }) => {
+const ProjectsSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, labels: UILabels }) => {
   const [layout, setLayout] = useState<LayoutType>('grid');
 
   const renderProjectItem = (project: Project, currentLayout: LayoutType, style: StyleFactory) => {
@@ -283,20 +420,20 @@ const ProjectsSection = ({ currentStyle }: { currentStyle: StyleFactory }) => {
   };
 
   return (
-    <div className={`py-12 px-4 max-w-7xl mx-auto ${currentStyle.getFontFamily()}`}>
+    <div className={`py-12 px-4 max-w-7xl mx-auto`}>
       <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 border-b border-gray-200 dark:border-gray-700 pb-4">
-        <div><h2 className={currentStyle.getSectionTitleClass()}>Projects</h2></div>
-        <div className="mt-4 md:mt-0"><LayoutSwitcher current={layout} onChange={setLayout} currentStyle={currentStyle} /></div>
+        <div><h2 className={currentStyle.getSectionTitleClass()}>{labels.sections.projects}</h2><p className="text-gray-500 mt-2">{labels.sections.projectsDesc}</p></div>
+        <div className="mt-4 md:mt-0"><LayoutSwitcher current={layout} onChange={setLayout} currentStyle={currentStyle} labels={labels} /></div>
       </div>
-      <ContentLayoutFactory layout={layout} items={MOCK_PROJECTS} renderItem={renderProjectItem} getDate={(item) => item.date} currentStyle={currentStyle} />
+      <ContentLayoutFactory layout={layout} items={MOCK_PROJECTS} renderItem={renderProjectItem} getDate={(item) => item.date} currentStyle={currentStyle} labels={labels} />
     </div>
   );
 };
 
-const ArticlesSection = ({ currentStyle }: { currentStyle: StyleFactory }) => {
+const ArticlesSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, labels: UILabels }) => {
   const [layout, setLayout] = useState<LayoutType>('list');
 
-  const renderArticleItem = (article: Article, currentLayout: LayoutType, style: StyleFactory) => {
+  const renderArticleItem = (article: Article, currentLayout: LayoutType, style: StyleFactory, labels: UILabels) => {
     return (
       <div className={`${style.getCardClass()} p-6`}>
         <div className="flex items-center text-sm text-gray-500 mb-2 space-x-2">
@@ -306,26 +443,26 @@ const ArticlesSection = ({ currentStyle }: { currentStyle: StyleFactory }) => {
         <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">{article.excerpt}</p>
         <div className="flex items-center justify-between">
           <div className="flex gap-2">{article.tags.map(tag => <span key={tag} className={style.getBadgeClass()}>{tag}</span>)}</div>
-          <span className={`${style.name === 'Future' ? 'text-cyan-500' : 'text-blue-600'} font-medium text-sm flex items-center`}>Read more <ChevronRight size={16} /></span>
+          <span className={`${style.name === 'Future' ? 'text-cyan-500' : 'text-blue-600'} font-medium text-sm flex items-center`}>{labels.actions.readMore} <ChevronRight size={16} /></span>
         </div>
       </div>
     );
   };
 
   return (
-    <div className={`py-12 px-4 max-w-7xl mx-auto ${currentStyle.getFontFamily()}`}>
+    <div className={`py-12 px-4 max-w-7xl mx-auto`}>
       <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 border-b border-gray-200 dark:border-gray-700 pb-4">
-        <div><h2 className={currentStyle.getSectionTitleClass()}>Articles</h2></div>
-        <div className="mt-4 md:mt-0"><LayoutSwitcher current={layout} onChange={setLayout} currentStyle={currentStyle} /></div>
+        <div><h2 className={currentStyle.getSectionTitleClass()}>{labels.sections.articles}</h2><p className="text-gray-500 mt-2">{labels.sections.articlesDesc}</p></div>
+        <div className="mt-4 md:mt-0"><LayoutSwitcher current={layout} onChange={setLayout} currentStyle={currentStyle} labels={labels} /></div>
       </div>
       <div className={layout === 'list' ? 'max-w-4xl mx-auto' : ''}>
-        <ContentLayoutFactory layout={layout} items={MOCK_ARTICLES} renderItem={renderArticleItem} getDate={(item) => item.publishedAt} currentStyle={currentStyle} />
+        <ContentLayoutFactory layout={layout} items={MOCK_ARTICLES} renderItem={renderArticleItem} getDate={(item) => item.publishedAt} currentStyle={currentStyle} labels={labels} />
       </div>
     </div>
   );
 };
 
-const BlogSection = ({ currentStyle }: { currentStyle: StyleFactory }) => {
+const BlogSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, labels: UILabels }) => {
   const [layout, setLayout] = useState<LayoutType>('grid');
 
   const renderBlogItem = (blog: Blog, currentLayout: LayoutType, style: StyleFactory) => {
@@ -340,24 +477,24 @@ const BlogSection = ({ currentStyle }: { currentStyle: StyleFactory }) => {
   };
 
   return (
-    <div className={`py-12 px-4 max-w-7xl mx-auto ${currentStyle.getFontFamily()}`}>
+    <div className={`py-12 px-4 max-w-7xl mx-auto`}>
       <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 border-b border-gray-200 dark:border-gray-700 pb-4">
-        <div><h2 className={currentStyle.getSectionTitleClass()}>Blog</h2></div>
-        <div className="mt-4 md:mt-0"><LayoutSwitcher current={layout} onChange={setLayout} currentStyle={currentStyle} /></div>
+        <div><h2 className={currentStyle.getSectionTitleClass()}>{labels.sections.blog}</h2><p className="text-gray-500 mt-2">{labels.sections.blogDesc}</p></div>
+        <div className="mt-4 md:mt-0"><LayoutSwitcher current={layout} onChange={setLayout} currentStyle={currentStyle} labels={labels} /></div>
       </div>
-      <ContentLayoutFactory layout={layout} items={MOCK_BLOGS} renderItem={renderBlogItem} getDate={(item) => item.date} currentStyle={currentStyle} />
+      <ContentLayoutFactory layout={layout} items={MOCK_BLOGS} renderItem={renderBlogItem} getDate={(item) => item.date} currentStyle={currentStyle} labels={labels} />
     </div>
   );
 };
 
-const DocsSection = ({ currentStyle }: { currentStyle: StyleFactory }) => {
+const DocsSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, labels: UILabels }) => {
   const [activeDoc, setActiveDoc] = useState(MOCK_DOCS[0]);
   const sections = Array.from(new Set(MOCK_DOCS.map(d => d.section)));
 
   return (
-    <div className={`flex flex-col md:flex-row max-w-7xl mx-auto pt-8 min-h-[80vh] px-4 ${currentStyle.getFontFamily()}`}>
+    <div className={`flex flex-col md:flex-row max-w-7xl mx-auto pt-8 min-h-[80vh] px-4`}>
       <div className="w-full md:w-64 flex-shrink-0 mb-8 md:mb-0 md:border-r border-gray-200 dark:border-gray-700 md:pr-4">
-        <h3 className={`text-lg font-bold mb-4 ${currentStyle.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-gray-100'}`}>Documentation</h3>
+        <h3 className={`text-lg font-bold mb-4 ${currentStyle.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-gray-100'}`}>{labels.sections.docs}</h3>
         {sections.map(section => (
           <div key={section} className="mb-6">
             <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{section}</h4>
@@ -386,8 +523,8 @@ const DocsSection = ({ currentStyle }: { currentStyle: StyleFactory }) => {
   );
 };
 
-const ResumeSection = ({ currentStyle }: { currentStyle: StyleFactory }) => (
-  <div className={`py-12 px-4 max-w-4xl mx-auto ${currentStyle.getFontFamily()}`}>
+const ResumeSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, labels: UILabels }) => (
+  <div className={`py-12 px-4 max-w-4xl mx-auto`}>
     <div className={`${currentStyle.getCardClass()} p-8 print:shadow-none print:border-none`}>
       <div className="border-b border-gray-200 dark:border-gray-700 pb-8 mb-8 flex justify-between items-start">
         <div>
@@ -395,16 +532,16 @@ const ResumeSection = ({ currentStyle }: { currentStyle: StyleFactory }) => (
           <h2 className={`text-xl font-medium mb-4 ${currentStyle.name === 'Future' ? 'text-purple-400' : 'text-blue-600 dark:text-blue-400'}`}>{MOCK_RESUME.title}</h2>
           <div className="flex flex-col sm:flex-row gap-4 text-gray-500 text-sm"><span>{MOCK_RESUME.contact.location}</span><span>{MOCK_RESUME.contact.email}</span></div>
         </div>
-        <button className={currentStyle.getButtonClass('secondary')}><FileText size={16} /> PDF</button>
+        <button className={currentStyle.getButtonClass('secondary')}><FileText size={16} /> {labels.actions.downloadPdf}</button>
       </div>
 
       <div className="mb-8">
-        <h3 className={`text-lg font-bold uppercase tracking-wide mb-4 border-b pb-2 ${currentStyle.name === 'Future' ? 'text-cyan-400 border-cyan-900' : 'text-gray-900 dark:text-white border-gray-100 dark:border-gray-700'}`}>Summary</h3>
+        <h3 className={`text-lg font-bold uppercase tracking-wide mb-4 border-b pb-2 ${currentStyle.name === 'Future' ? 'text-cyan-400 border-cyan-900' : 'text-gray-900 dark:text-white border-gray-100 dark:border-gray-700'}`}>{labels.sections.summary}</h3>
         <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{MOCK_RESUME.summary}</p>
       </div>
 
       <div className="mb-8">
-        <h3 className={`text-lg font-bold uppercase tracking-wide mb-4 border-b pb-2 ${currentStyle.name === 'Future' ? 'text-cyan-400 border-cyan-900' : 'text-gray-900 dark:text-white border-gray-100 dark:border-gray-700'}`}>Experience</h3>
+        <h3 className={`text-lg font-bold uppercase tracking-wide mb-4 border-b pb-2 ${currentStyle.name === 'Future' ? 'text-cyan-400 border-cyan-900' : 'text-gray-900 dark:text-white border-gray-100 dark:border-gray-700'}`}>{labels.sections.experience}</h3>
         <div className="space-y-8">
           {MOCK_RESUME.experience.map(exp => (
             <div key={exp.id}>
@@ -422,7 +559,7 @@ const ResumeSection = ({ currentStyle }: { currentStyle: StyleFactory }) => (
       </div>
 
       <div>
-        <h3 className={`text-lg font-bold uppercase tracking-wide mb-4 border-b pb-2 ${currentStyle.name === 'Future' ? 'text-cyan-400 border-cyan-900' : 'text-gray-900 dark:text-white border-gray-100 dark:border-gray-700'}`}>Skills</h3>
+        <h3 className={`text-lg font-bold uppercase tracking-wide mb-4 border-b pb-2 ${currentStyle.name === 'Future' ? 'text-cyan-400 border-cyan-900' : 'text-gray-900 dark:text-white border-gray-100 dark:border-gray-700'}`}>{labels.sections.skills}</h3>
         <div className="flex flex-wrap gap-2">
           {MOCK_RESUME.skills.map(skill => <span key={skill} className={currentStyle.getBadgeClass()}>{skill}</span>)}
         </div>
@@ -436,6 +573,8 @@ const ResumeSection = ({ currentStyle }: { currentStyle: StyleFactory }) => (
 export default function PersonalWebsite() {
   const [activeTab, setActiveTab] = useState('home');
   const [styleKey, setStyleKey] = useState('modern');
+  const [langKey, setLangKey] = useState('en'); // New state for Language
+  const [fontKey, setFontKey] = useState('sans'); // New state for Font
   const [isDark, setIsDark] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -448,32 +587,36 @@ export default function PersonalWebsite() {
   }, [isDark]);
 
   const currentStyle = STYLES[styleKey];
+  const currentLang = LOCALES[langKey];
+  const currentFont = FONTS[fontKey];
+  const labels = currentLang.getLabels(); // Get UI labels based on language
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'home': return <HeroSection currentStyle={currentStyle} />;
-      case 'feed': return <UnifiedFeedSection currentStyle={currentStyle} />;
-      case 'projects': return <ProjectsSection currentStyle={currentStyle} />;
-      case 'articles': return <ArticlesSection currentStyle={currentStyle} />;
-      case 'blog': return <BlogSection currentStyle={currentStyle} />;
-      case 'docs': return <DocsSection currentStyle={currentStyle} />;
-      case 'resume': return <ResumeSection currentStyle={currentStyle} />;
-      default: return <HeroSection currentStyle={currentStyle} />;
+      case 'home': return <HeroSection currentStyle={currentStyle} labels={labels} />;
+      case 'feed': return <UnifiedFeedSection currentStyle={currentStyle} labels={labels} />;
+      case 'projects': return <ProjectsSection currentStyle={currentStyle} labels={labels} />;
+      case 'articles': return <ArticlesSection currentStyle={currentStyle} labels={labels} />;
+      case 'blog': return <BlogSection currentStyle={currentStyle} labels={labels} />;
+      case 'docs': return <DocsSection currentStyle={currentStyle} labels={labels} />;
+      case 'resume': return <ResumeSection currentStyle={currentStyle} labels={labels} />;
+      default: return <HeroSection currentStyle={currentStyle} labels={labels} />;
     }
   };
 
   const navItems = [
-    { name: 'Home', id: 'home', icon: <User size={18} /> },
-    { name: 'Feed', id: 'feed', icon: <Rss size={18} /> },
-    { name: 'Projects', id: 'projects', icon: <Code size={18} /> },
-    { name: 'Articles', id: 'articles', icon: <BookOpen size={18} /> },
-    { name: 'Blog', id: 'blog', icon: <FileText size={18} /> },
-    { name: 'Docs', id: 'docs', icon: <FileText size={18} /> },
-    { name: 'Resume', id: 'resume', icon: <Briefcase size={18} /> },
+    { name: labels.nav.home, id: 'home', icon: <User size={18} /> },
+    { name: labels.nav.feed, id: 'feed', icon: <Rss size={18} /> },
+    { name: labels.nav.projects, id: 'projects', icon: <Code size={18} /> },
+    { name: labels.nav.articles, id: 'articles', icon: <BookOpen size={18} /> },
+    { name: labels.nav.blog, id: 'blog', icon: <FileText size={18} /> },
+    { name: labels.nav.docs, id: 'docs', icon: <FileText size={18} /> },
+    { name: labels.nav.resume, id: 'resume', icon: <Briefcase size={18} /> },
   ];
 
   return (
-    <div className={currentStyle.getMainLayoutClass()}>
+    // Inject Font Class at the top level
+    <div className={`${currentStyle.getMainLayoutClass()} ${currentFont.getFontClass()}`}>
       <nav className={currentStyle.getNavbarClass()}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -517,7 +660,13 @@ export default function PersonalWebsite() {
         {renderContent()}
       </main>
 
-      <ThemeControls currentStyleKey={styleKey} setStyleKey={setStyleKey} isDark={isDark} toggleDark={() => setIsDark(!isDark)} />
+      {/* Passed new props for language and font control */}
+      <ThemeControls 
+        currentStyleKey={styleKey} setStyleKey={setStyleKey} 
+        isDark={isDark} toggleDark={() => setIsDark(!isDark)}
+        langKey={langKey} setLangKey={setLangKey}
+        fontKey={fontKey} setFontKey={setFontKey}
+      />
     </div>
   );
 }
