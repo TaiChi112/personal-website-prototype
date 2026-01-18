@@ -4,10 +4,11 @@ import {
   BookOpen, Code, FileText, User, Briefcase, Menu, X, 
   Github, Linkedin, ExternalLink, ChevronRight, ChevronDown, Calendar, 
   Tag, LayoutGrid, List, Clock, PlayCircle, Rss, 
-  Palette, Moon, Sun, Monitor, Globe, Type, Layers, Box, Folder, ArrowRight
+  Palette, Moon, Sun, Monitor, Globe, Type, Layers, Box, Folder, ArrowRight,
+  Star, Zap, Flame, Award // Added Icons for Decorators
 } from 'lucide-react';
 
-// --- 1. DATA STRUCTURE DEFINITIONS (UNCHANGED) ---
+// --- 1. DATA STRUCTURE DEFINITIONS (UPDATED) ---
 interface Article { id: string; title: string; slug: string; excerpt: string; content: string; publishedAt: string; tags: string[]; readTime: string; author: { name: string; avatar: string; }; }
 interface Blog { id: string; title: string; slug: string; summary: string; date: string; category: 'Personal' | 'Lifestyle' | 'DevLog'; coverImage?: string; }
 interface Doc { id: string; title: string; slug: string; section: string; content: string; lastUpdated: string; }
@@ -16,7 +17,20 @@ interface Experience { id: string; role: string; company: string; period: string
 interface Education { id: string; degree: string; institution: string; year: string; }
 interface ResumeData { name: string; title: string; summary: string; skills: string[]; experience: Experience[]; education: Education[]; contact: { email: string; location: string; }; }
 interface ExternalVideoData { videoId: string; headline: string; descriptionSnippet: string; published_timestamp: number; thumbnail_high: string; views: number; tags: string[]; }
-interface UnifiedContentItem { id: string; type: 'project' | 'blog' | 'video' | 'article' | 'doc'; title: string; description: string; date: string; imageUrl?: string; meta: string[]; actionLink?: string; }
+
+// UPDATED: Added decorations field for the Pattern
+type DecorationType = 'new' | 'featured' | 'sponsor' | 'hot' | 'popular';
+interface UnifiedContentItem { 
+  id: string; 
+  type: 'project' | 'blog' | 'video' | 'article' | 'doc'; 
+  title: string; 
+  description: string; 
+  date: string; 
+  imageUrl?: string; 
+  meta: string[]; 
+  actionLink?: string;
+  decorations?: DecorationType[]; // The Decorator Payload
+}
 
 // --- 2. MOCK DATA (EXISTING UNCHANGED) ---
 const MOCK_ARTICLES_FLAT: Article[] = [
@@ -44,25 +58,35 @@ const MOCK_RESUME: ResumeData = {
   contact: { email: 'alex@example.com', location: 'Bangkok' }
 };
 const MOCK_DOCS: Doc[] = [
-  { id: '1', title: 'Getting Started', slug: 'start', section: 'Introduction', content: 'Welcome to the documentation. This guide will help you get started with the project installation and basic configuration. \n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', lastUpdated: '2024-01-10' },
+  { id: '1', title: 'Getting Started', slug: 'start', section: 'Intro', content: 'Welcome to the documentation. This guide will help you get started with the project installation and basic configuration. \n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', lastUpdated: '2024-01-10' },
   { id: '2', title: 'Authentication', slug: 'auth', section: 'Core Concepts', content: 'We use JWT for authentication. Here is how you can implement the login flow... \n\nUt enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', lastUpdated: '2024-02-15' },
   { id: '3', title: 'Database Schema', slug: 'db', section: 'Core Concepts', content: 'The database consists of 5 main tables: Users, Products, Orders... \n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.', lastUpdated: '2024-03-01' }
 ];
 
-// --- 3. ADAPTERS (UNCHANGED) ---
-const adaptProjectToUnified = (p: Project): UnifiedContentItem => ({ id: `proj-${p.id}`, type: 'project', title: p.title, description: p.description, date: p.date, imageUrl: p.thumbnail, meta: p.techStack, actionLink: p.githubUrl });
-const adaptBlogToUnified = (b: Blog): UnifiedContentItem => ({ id: `blog-${b.id}`, type: 'blog', title: b.title, description: b.summary, date: b.date, imageUrl: b.coverImage, meta: [b.category], actionLink: '#' });
-const adaptVideoToUnified = (v: ExternalVideoData): UnifiedContentItem => ({ id: `vid-${v.videoId}`, type: 'video', title: v.headline, description: v.descriptionSnippet, date: new Date(v.published_timestamp).toISOString().split('T')[0], imageUrl: v.thumbnail_high, meta: [`${v.views} views`], actionLink: '#' });
+// --- 3. ADAPTERS (UPDATED to Map Decorations) ---
+const adaptProjectToUnified = (p: Project): UnifiedContentItem => ({ 
+  id: `proj-${p.id}`, type: 'project', title: p.title, description: p.description, date: p.date, imageUrl: p.thumbnail, meta: p.techStack, actionLink: p.githubUrl,
+  decorations: p.featured ? ['featured'] : [] // Map 'featured' logic to decorator
+});
+const adaptBlogToUnified = (b: Blog): UnifiedContentItem => ({ 
+  id: `blog-${b.id}`, type: 'blog', title: b.title, description: b.summary, date: b.date, imageUrl: b.coverImage, meta: [b.category], actionLink: '#',
+  decorations: b.category === 'DevLog' ? ['new'] : [] // Example logic
+});
+const adaptVideoToUnified = (v: ExternalVideoData): UnifiedContentItem => ({ 
+  id: `vid-${v.videoId}`, type: 'video', title: v.headline, description: v.descriptionSnippet, date: new Date(v.published_timestamp).toISOString().split('T')[0], imageUrl: v.thumbnail_high, meta: [`${v.views} views`], actionLink: '#',
+  decorations: v.views > 10000 ? ['popular', 'hot'] : [] // Example logic
+});
 const adaptArticleToUnified = (a: Article): UnifiedContentItem => ({ id: `art-${a.id}`, type: 'article', title: a.title, description: a.excerpt, date: a.publishedAt, meta: a.tags, actionLink: '#' });
 const adaptDocToUnified = (d: Doc): UnifiedContentItem => ({ id: `doc-${d.id}`, type: 'doc', title: d.title, description: d.content.substring(0, 100) + '...', date: d.lastUpdated, meta: [d.section], actionLink: '#' });
 
 // ==========================================
 // === 1. LOCALIZATION ABSTRACT FACTORY ===
 // ==========================================
+// (UNCHANGED)
 interface UILabels {
   nav: { home: string; feed: string; projects: string; articles: string; blog: string; docs: string; resume: string; };
   hero: { titlePrefix: string; titleHighlight: string; description: string; btnProjects: string; btnArticles: string; };
-  sections: { feed: string; feedDesc: string; projects: string; projectsDesc: string; articles: string; articlesDesc: string; blog: string; blogDesc: string; docs: string; resume: string; experience: string; skills: string; education: string; summary: string; };
+  sections: { feed: string; feedDesc: string; projects: string; projectsDesc: string; articles: string; articlesDesc: string; blog: string; blogDesc: string; docs: string; docsDesc: string; resume: string; experience: string; skills: string; education: string; summary: string; };
   actions: { readMore: string; downloadPdf: string; view: string; expand: string; collapse: string; related: string };
 }
 
@@ -78,7 +102,7 @@ const EnglishLocalization: LocalizationFactory = {
       projects: 'Projects', projectsDesc: 'Super Projects and their related sub-modules.',
       articles: 'Technical Articles', articlesDesc: 'Drill down into topics to see related content.',
       blog: 'Personal Blog', blogDesc: 'Main stories and related thoughts.',
-      docs: 'Documentation',
+      docs: 'Documentation', docsDesc: 'Guides and References in a structured view.',
       resume: 'Resume', experience: 'Experience', skills: 'Skills', education: 'Education', summary: 'Summary'
     },
     actions: { readMore: 'Read more', downloadPdf: 'PDF', view: 'View', expand: 'Show Related', collapse: 'Hide Related', related: 'Related Items' }
@@ -105,6 +129,7 @@ const ThaiLocalization: LocalizationFactory = {
 // ==========================================
 // === 2. TYPOGRAPHY & STYLE FACTORIES ===
 // ==========================================
+// (UNCHANGED)
 interface TypographyFactory { name: string; getFontClass(): string; }
 const PrimaryFont: TypographyFactory = { name: 'Sans', getFontClass: () => 'font-sans' };
 const SecondaryFont: TypographyFactory = { name: 'Serif', getFontClass: () => 'font-serif' };
@@ -185,10 +210,64 @@ const LOCALES: Record<string, LocalizationFactory> = { 'en': EnglishLocalization
 const FONTS: Record<string, TypographyFactory> = { 'sans': PrimaryFont, 'serif': SecondaryFont };
 
 // ==========================================
+// === 3. DECORATOR PATTERN IMPLEMENTATION ===
+// ==========================================
+
+// The Decorator Component: Wraps content and adds "bling" based on decoration props
+const ContentDecorator = ({ children, decorations, style }: { children: React.ReactNode, decorations?: DecorationType[], style: StyleFactory }) => {
+  if (!decorations || decorations.length === 0) return <>{children}</>;
+
+  const getDecoratorStyle = (type: DecorationType) => {
+    switch (type) {
+      case 'new': return 'bg-emerald-500 text-white shadow-emerald-500/30';
+      case 'featured': return 'bg-amber-400 text-amber-900 shadow-amber-400/30';
+      case 'hot': return 'bg-rose-500 text-white shadow-rose-500/30';
+      case 'sponsor': return 'bg-indigo-500 text-white shadow-indigo-500/30';
+      case 'popular': return 'bg-blue-500 text-white shadow-blue-500/30';
+      default: return 'bg-gray-500 text-white';
+    }
+  };
+
+  const getIcon = (type: DecorationType) => {
+    switch (type) {
+      case 'featured': return <Star size={10} fill="currentColor" />;
+      case 'hot': return <Flame size={10} />;
+      case 'sponsor': return <Award size={10} />;
+      case 'new': return <Zap size={10} />;
+      case 'popular': return <Globe size={10} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="relative group h-full">
+      {/* The Original Content */}
+      {children}
+
+      {/* The Decorations Overlay */}
+      <div className={`absolute -top-2 -right-1 flex flex-col items-end gap-1 z-10 pointer-events-none transition-transform duration-300 group-hover:-translate-y-1`}>
+        {decorations.map(d => (
+          <span 
+            key={d} 
+            className={`
+              flex items-center gap-1 px-2 py-1 text-[10px] uppercase font-bold tracking-wider shadow-sm
+              ${getDecoratorStyle(d)}
+              ${style.name === 'Future' ? 'clip-path-slant' : 'rounded-full'}
+              ${style.name === 'Minimal' ? 'border border-black dark:border-white bg-white dark:bg-black text-black dark:text-white' : ''}
+            `}
+          >
+            {getIcon(d)} {d}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ==========================================
 // === 4. COMPOSITE PATTERN IMPLEMENTATION ===
 // ==========================================
 
-// 4.1 Define Component Interfaces
 type ComponentType = 'container' | 'item';
 type LayoutStyleType = 'grid' | 'list' | 'timeline' | 'column' | 'row';
 
@@ -211,15 +290,14 @@ interface CompositeNode extends LayoutNode {
   data?: UnifiedContentItem;
 }
 
-// 4.2 MOCK HIERARCHICAL DATA (UPDATED)
+// 4.2 MOCK HIERARCHICAL DATA (UPDATED WITH DECORATIONS)
 
-// 1. ARTICLES: Parent has Data + Children
 const HIERARCHICAL_ARTICLES: CompositeNode[] = [
   {
     id: 'rsc-master',
     type: 'container',
     layoutStyle: 'grid', 
-    data: adaptArticleToUnified(MOCK_ARTICLES_FLAT[0]),
+    data: { ...adaptArticleToUnified(MOCK_ARTICLES_FLAT[0]), decorations: ['hot', 'popular'] }, // Decorated Article
     children: [
       { id: 'sub-1', type: 'item', data: { ...adaptBlogToUnified(MOCK_BLOGS[0]), type: 'blog', title: 'Why I moved to RSC (Blog Log)' } } as LeafNode,
       { id: 'sub-2', type: 'item', data: { ...adaptVideoToUnified(MOCK_VIDEOS[0]), type: 'video', title: 'Video Demo: RSC in Action' } } as LeafNode,
@@ -231,41 +309,39 @@ const HIERARCHICAL_ARTICLES: CompositeNode[] = [
     layoutStyle: 'list',
     data: adaptArticleToUnified(MOCK_ARTICLES_FLAT[1]),
     children: [
-      { id: 'sub-3', type: 'item', data: { ...adaptProjectToUnified(MOCK_PROJECTS[1]), type: 'article', title: 'Utility Types Cheatsheet' } } as LeafNode
+      { id: 'sub-3', type: 'item', data: { ...adaptProjectToUnified(MOCK_PROJECTS[1]), type: 'article', title: 'Utility Types Cheatsheet', decorations: ['new'] } } as LeafNode
     ]
   }
 ];
 
-// 2. PROJECTS: Parent has Data (Super Project) + Children (Sub Projects)
 const HIERARCHICAL_PROJECTS: CompositeNode[] = [
   {
     id: 'super-app',
     type: 'container',
     layoutStyle: 'grid',
-    data: adaptProjectToUnified(MOCK_PROJECTS[0]), // "E-Commerce Super App" as parent
+    data: adaptProjectToUnified(MOCK_PROJECTS[0]), // Inherits 'featured' decorator from adapter
     children: [
-      { id: 'sub-p1', type: 'item', data: adaptProjectToUnified(MOCK_PROJECTS[1]) } as LeafNode, // "Merchant Dashboard"
-      { id: 'sub-p2', type: 'item', data: adaptProjectToUnified(MOCK_PROJECTS[2]) } as LeafNode  // "Mobile App"
+      { id: 'sub-p1', type: 'item', data: adaptProjectToUnified(MOCK_PROJECTS[1]) } as LeafNode,
+      { id: 'sub-p2', type: 'item', data: adaptProjectToUnified(MOCK_PROJECTS[2]) } as LeafNode
     ]
   },
   {
     id: 'ai-chat',
     type: 'container',
     layoutStyle: 'list',
-    data: adaptProjectToUnified(MOCK_PROJECTS[3]), // "AI Chat System" as parent
+    data: { ...adaptProjectToUnified(MOCK_PROJECTS[3]), decorations: ['sponsor'] }, // Custom decoration
     children: [
-       { id: 'sub-p3', type: 'item', data: adaptProjectToUnified(MOCK_PROJECTS[4]) } as LeafNode // "Socket Server"
+       { id: 'sub-p3', type: 'item', data: adaptProjectToUnified(MOCK_PROJECTS[4]) } as LeafNode
     ]
   }
 ];
 
-// 3. BLOGS: Parent has Data (Main Story) + Children (Related Thoughts)
 const HIERARCHICAL_BLOGS: CompositeNode[] = [
   {
     id: 'journey-main',
     type: 'container',
     layoutStyle: 'timeline',
-    data: adaptBlogToUnified(MOCK_BLOGS[0]), // "My Journey into Tech"
+    data: { ...adaptBlogToUnified(MOCK_BLOGS[0]), decorations: ['featured'] },
     children: [
       { id: 'rel-b1', type: 'item', data: { ...adaptArticleToUnified(MOCK_ARTICLES_FLAT[0]), type: 'blog', title: 'First Framework I Learned' } } as LeafNode,
       { id: 'rel-b2', type: 'item', data: { ...adaptProjectToUnified(MOCK_PROJECTS[0]), type: 'blog', title: 'My First Big Failure' } } as LeafNode
@@ -275,9 +351,9 @@ const HIERARCHICAL_BLOGS: CompositeNode[] = [
     id: 'coffee-life',
     type: 'container',
     layoutStyle: 'list',
-    data: adaptBlogToUnified(MOCK_BLOGS[1]), // "Why I love Coffee"
+    data: adaptBlogToUnified(MOCK_BLOGS[1]),
     children: [
-       { id: 'rel-b3', type: 'item', data: { ...adaptVideoToUnified(MOCK_VIDEOS[0]), type: 'video', title: 'Vlog: A Day in Life' } } as LeafNode
+       { id: 'rel-b3', type: 'item', data: { ...adaptVideoToUnified(MOCK_VIDEOS[0]), type: 'video', title: 'Vlog: A Day in Life', decorations: ['new'] } } as LeafNode
     ]
   }
 ];
@@ -324,50 +400,47 @@ const InteractiveContentNode = ({ node, style, labels, level = 0 }: { node: Layo
       );
     }
 
-    // Interactive Card
+    // Interactive Card WITH DECORATOR APPLIED
     return (
-      <div className={`${style.getCardClass()} p-6`}>
-        <div className="flex justify-between items-start mb-3">
-           <div className="flex items-center gap-2">
-             <span className={style.getBadgeClass()}>{contentItem!.type}</span>
-             <span className="text-xs text-gray-400 flex items-center gap-1"><Calendar size={12}/> {contentItem!.date}</span>
-           </div>
-           {hasChildren && (
-             <button 
-               onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
-               className={`flex items-center gap-1 text-xs font-bold uppercase tracking-wider transition-colors ${style.name === 'Future' ? 'text-cyan-400' : 'text-blue-600 dark:text-blue-400'}`}
-             >
-               {isOpen ? labels.actions.collapse : labels.actions.expand} ({isComposite(node) ? node.children.length : 0})
-               <ChevronDown size={14} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+      <ContentDecorator decorations={contentItem!.decorations} style={style}>
+        <div className={`${style.getCardClass()} p-6`}>
+          <div className="flex justify-between items-start mb-3">
+             <div className="flex items-center gap-2">
+               <span className={style.getBadgeClass()}>{contentItem!.type}</span>
+               <span className="text-xs text-gray-400 flex items-center gap-1"><Calendar size={12}/> {contentItem!.date}</span>
+             </div>
+             {hasChildren && (
+               <button 
+                 onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+                 className={`flex items-center gap-1 text-xs font-bold uppercase tracking-wider transition-colors ${style.name === 'Future' ? 'text-cyan-400' : 'text-blue-600 dark:text-blue-400'}`}
+               >
+                 {isOpen ? labels.actions.collapse : labels.actions.expand} ({isComposite(node) ? node.children.length : 0})
+                 <ChevronDown size={14} className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+               </button>
+             )}
+          </div>
+          <h3 className={`text-2xl font-bold mb-2 cursor-pointer hover:underline ${style.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-gray-100'}`}>
+             {contentItem!.title}
+          </h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 leading-relaxed">
+             {contentItem!.description}
+          </p>
+          <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
+             <div className="flex gap-2">
+               {contentItem!.meta && contentItem!.meta.slice(0, 3).map((tag, i) => <span key={i} className="text-[10px] px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-gray-500">#{tag}</span>)}
+             </div>
+             <button className={style.getButtonClass('text')}>
+               {labels.actions.readMore} <ChevronRight size={14} className="inline ml-1"/>
              </button>
-           )}
+          </div>
         </div>
-        <h3 className={`text-2xl font-bold mb-2 cursor-pointer hover:underline ${style.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-gray-100'}`}>
-           {contentItem!.title}
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 leading-relaxed">
-           {contentItem!.description}
-        </p>
-        <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
-           <div className="flex gap-2">
-             {contentItem!.meta && contentItem!.meta.slice(0, 3).map((tag, i) => <span key={i} className="text-[10px] px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-gray-500">#{tag}</span>)}
-           </div>
-           <button className={style.getButtonClass('text')}>
-             {labels.actions.readMore} <ChevronRight size={14} className="inline ml-1"/>
-           </button>
-        </div>
-      </div>
+      </ContentDecorator>
     );
   };
 
   const renderChildren = () => {
     if (!isComposite(node)) return null;
-    
-    // Auto-open containers without data to show sections
-    useEffect(() => {
-        if (!contentItem && isComposite(node)) setIsOpen(true);
-    }, []);
-
+    useEffect(() => { if (!contentItem && isComposite(node)) setIsOpen(true); }, []);
     const shouldRender = contentItem ? isOpen : (isOpen || true);
     if (!shouldRender) return null;
 
@@ -511,7 +584,15 @@ const UnifiedFeedSection = ({ currentStyle, labels }: { currentStyle: StyleFacto
   const unifiedItems = [...MOCK_PROJECTS.map(adaptProjectToUnified), ...MOCK_BLOGS.map(adaptBlogToUnified), ...MOCK_VIDEOS.map(adaptVideoToUnified)].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   const renderItem = (item: UnifiedContentItem, currentLayout: LayoutType, style: StyleFactory, labels: UILabels) => {
     const isList = currentLayout === 'list';
-    return (<div className={`${style.getCardClass()} h-full flex ${isList ? 'flex-row items-center' : 'flex-col'}`}><div className={`${isList ? 'w-48 h-32' : 'h-48'} bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 relative overflow-hidden`}><span className="text-gray-400 font-medium opacity-50">{item.type.toUpperCase()}</span><div className={`absolute top-2 right-2 ${style.getBadgeClass()}`}>{item.type}</div></div><div className="p-6 flex-1 flex flex-col"><div className="flex items-center text-xs text-gray-400 mb-2 space-x-2"><Calendar size={12} /><span>{item.date}</span></div><h3 className={`text-xl font-bold mb-2 ${style.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-gray-100'}`}>{item.title}</h3><p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 text-sm">{item.description}</p><div className="flex flex-wrap gap-2 mt-auto">{item.meta.slice(0, 3).map((tag, i) => <span key={i} className={style.getBadgeClass()}>{tag}</span>)}</div></div></div>);
+    // Use Decorator for Unified Feed as well
+    return (
+      <ContentDecorator decorations={item.decorations} style={style}>
+        <div className={`${style.getCardClass()} h-full flex ${isList ? 'flex-row items-center' : 'flex-col'}`}>
+          <div className={`${isList ? 'w-48 h-32' : 'h-48'} bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 relative overflow-hidden`}><span className="text-gray-400 font-medium opacity-50">{item.type.toUpperCase()}</span><div className={`absolute top-2 right-2 ${style.getBadgeClass()}`}>{item.type}</div></div>
+          <div className="p-6 flex-1 flex flex-col"><div className="flex items-center text-xs text-gray-400 mb-2 space-x-2"><Calendar size={12} /><span>{item.date}</span></div><h3 className={`text-xl font-bold mb-2 ${style.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-gray-100'}`}>{item.title}</h3><p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 text-sm">{item.description}</p><div className="flex flex-wrap gap-2 mt-auto">{item.meta.slice(0, 3).map((tag, i) => <span key={i} className={style.getBadgeClass()}>{tag}</span>)}</div></div>
+        </div>
+      </ContentDecorator>
+    );
   };
   return (<div className={`py-12 px-4 max-w-7xl mx-auto`}><div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 border-b border-gray-200 dark:border-gray-700 pb-4"><div><h2 className={currentStyle.getSectionTitleClass()}>{labels.sections.feed}</h2><p className="text-gray-500 mt-2">{labels.sections.feedDesc}</p></div><div className="mt-4 md:mt-0"><LayoutSwitcher current={layout} onChange={setLayout} currentStyle={currentStyle} labels={labels} /></div></div><ContentLayoutFactory layout={layout} items={unifiedItems} renderItem={renderItem} getDate={(item) => item.date} currentStyle={currentStyle} labels={labels} /></div>);
 };
