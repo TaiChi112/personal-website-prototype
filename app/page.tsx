@@ -8,7 +8,7 @@ import {
   Star, Zap, Flame, Award, Wrench, PieChart, BarChart3, Filter, Search, Terminal,
   Bell, CheckCircle, AlertTriangle, Info, RotateCcw, Lock, Unlock, UserCheck, ArrowUpDown,
   Play, Pause, SkipForward, SkipBack, StopCircle, FastForward, Save, DownloadCloud, RotateCw,
-  Mic, Headphones, Volume2, Square
+  Mic, Headphones, Volume2, Square, Cpu
 } from 'lucide-react';
 
 // ==========================================
@@ -414,6 +414,127 @@ class PausedState implements IAudioPlayerState {
     this.player.changeState(new StoppedState(this.player));
   }
 }
+
+// --- FLYWEIGHT PATTERN IMPLEMENTATION (PARTICLE BACKGROUND) ---
+
+// 1. Flyweight Interface & Concrete Flyweight (Intrinsic State)
+interface ParticleFlyweight {
+  draw(ctx: CanvasRenderingContext2D, x: number, y: number, size: number): void;
+}
+
+class IconParticleFlyweight implements ParticleFlyweight {
+  constructor(private symbol: string, private color: string) { }
+  draw(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
+    ctx.font = `${size}px monospace`;
+    ctx.fillStyle = this.color;
+    ctx.globalAlpha = 0.6;
+    ctx.fillText(this.symbol, x, y);
+    ctx.globalAlpha = 1.0;
+  }
+}
+
+// 2. Flyweight Factory
+class ParticleFactory {
+  private flyweights: Map<string, ParticleFlyweight> = new Map();
+
+  getFlyweight(key: string, symbol: string, color: string): ParticleFlyweight {
+    if (!this.flyweights.has(key)) {
+      this.flyweights.set(key, new IconParticleFlyweight(symbol, color));
+    }
+    return this.flyweights.get(key)!;
+  }
+}
+
+// 3. Context (Extrinsic State)
+class ParticleContext {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  flyweight: ParticleFlyweight;
+
+  constructor(w: number, h: number, factory: ParticleFactory) {
+    this.x = Math.random() * w;
+    this.y = Math.random() * h;
+    this.vx = (Math.random() - 0.5) * 0.5; // Velocity X
+    this.vy = (Math.random() - 0.5) * 0.5; // Velocity Y
+    this.size = Math.random() * 20 + 10;
+
+    // Assign a flyweight based on random choice
+    const type = Math.floor(Math.random() * 5);
+    // Intrinsic states shared among particles
+    if (type === 0) this.flyweight = factory.getFlyweight('react', '⚛', '#61dafb');
+    else if (type === 1) this.flyweight = factory.getFlyweight('code', '</>', '#facc15');
+    else if (type === 2) this.flyweight = factory.getFlyweight('ts', 'TS', '#3178c6');
+    else if (type === 3) this.flyweight = factory.getFlyweight('db', '⎔', '#10b981');
+    else this.flyweight = factory.getFlyweight('cloud', '☁', '#a8a29e');
+  }
+
+  update(w: number, h: number) {
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Bounce off walls
+    if (this.x < 0 || this.x > w) this.vx *= -1;
+    if (this.y < 0 || this.y > h) this.vy *= -1;
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    this.flyweight.draw(ctx, this.x, this.y, this.size);
+  }
+}
+
+const ParticleBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const factory = new ParticleFactory();
+    const particles: ParticleContext[] = [];
+    const particleCount = 100; // Even with 500, Flyweight keeps it efficient memory-wise
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Initialize particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new ParticleContext(canvas.width, canvas.height, factory));
+    }
+
+    let animationFrameId: number;
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(p => {
+        p.update(canvas.width, canvas.height);
+        p.draw(ctx);
+      });
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-20 dark:opacity-10" />;
+};
 
 
 const ContentDecorator = ({ children, decorations, style }: { children: React.ReactNode, decorations?: DecorationType[], style: StyleFactory }) => {
@@ -1082,7 +1203,10 @@ export default function PersonalWebsite() {
   return (
     <UserContext.Provider value={{ isAdmin, toggleRole: () => setIsAdmin(!isAdmin) }}>
       <TourContext.Provider value={{ activeNodeId, setActiveNodeId }}>
-        <div className={`${currentStyle.getMainLayoutClass()} ${currentFont.getFontClass()}`}>
+        {/* ADDED PARTICLE BACKGROUND */}
+        <ParticleBackground />
+
+        <div className={`${currentStyle.getMainLayoutClass()} ${currentFont.getFontClass()} relative z-10 bg-transparent`}>
           <nav className={currentStyle.getNavbarClass()}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between h-16">
