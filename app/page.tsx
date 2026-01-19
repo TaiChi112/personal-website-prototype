@@ -8,7 +8,7 @@ import {
   Star, Zap, Flame, Award, Wrench, PieChart, BarChart3, Filter, Search, Terminal,
   Bell, CheckCircle, AlertTriangle, Info, RotateCcw, Lock, Unlock, UserCheck, ArrowUpDown,
   Play, Pause, SkipForward, SkipBack, StopCircle, FastForward, Save, DownloadCloud, RotateCw,
-  Mic, Headphones, Volume2, Square, Cpu
+  Mic, Headphones, Volume2, Square, Cpu, Power, Mail, Send, MessageSquare, MapPin
 } from 'lucide-react';
 
 // ==========================================
@@ -173,16 +173,16 @@ const ARTICLES_TREE = new ContentBuilder('art-root', 'grid', 'Knowledge Base')
 // === 5. LOCALIZATION & STYLE FACTORIES ===
 // ==========================================
 interface UILabels {
-  nav: { home: string; feed: string; projects: string; articles: string; blog: string; docs: string; resume: string; dashboard: string; podcast: string; };
+  nav: { home: string; feed: string; projects: string; articles: string; blog: string; docs: string; resume: string; dashboard: string; podcast: string; contact: string; };
   hero: { titlePrefix: string; titleHighlight: string; description: string; btnProjects: string; btnArticles: string; };
-  sections: { feed: string; feedDesc: string; projects: string; projectsDesc: string; articles: string; articlesDesc: string; blog: string; blogDesc: string; docs: string; docsDesc: string; resume: string; experience: string; skills: string; education: string; summary: string; dashboard: string; dashboardDesc: string; podcast: string; podcastDesc: string; };
-  actions: { readMore: string; downloadPdf: string; view: string; expand: string; collapse: string; related: string; search: string; filterBy: string; undo: string; locked: string; unlock: string; sortBy: string; tour: string; tourNext: string; tourPrev: string; tourEnd: string; tourPause: string; tourPlay: string; tourSpeed: string; snapshotSave: string; snapshotLoad: string; snapshotPlaceholder: string; listen: string; playing: string; };
+  sections: { feed: string; feedDesc: string; projects: string; projectsDesc: string; articles: string; articlesDesc: string; blog: string; blogDesc: string; docs: string; docsDesc: string; resume: string; experience: string; skills: string; education: string; summary: string; dashboard: string; dashboardDesc: string; podcast: string; podcastDesc: string; contact: string; contactDesc: string; };
+  actions: { readMore: string; downloadPdf: string; view: string; expand: string; collapse: string; related: string; search: string; filterBy: string; undo: string; locked: string; unlock: string; sortBy: string; tour: string; tourNext: string; tourPrev: string; tourEnd: string; tourPause: string; tourPlay: string; tourSpeed: string; snapshotSave: string; snapshotLoad: string; snapshotPlaceholder: string; listen: string; playing: string; submit: string; };
 }
 interface LocalizationFactory { code: string; getLabels(): UILabels; }
 const EnglishLocalization: LocalizationFactory = {
   code: 'EN',
   getLabels: () => ({
-    nav: { home: 'Home', feed: 'Feed', projects: 'Projects', articles: 'Articles', blog: 'Blog', docs: 'Docs', resume: 'Resume', dashboard: 'Analytics', podcast: 'Podcast' },
+    nav: { home: 'Home', feed: 'Feed', projects: 'Projects', articles: 'Articles', blog: 'Blog', docs: 'Docs', resume: 'Resume', dashboard: 'Analytics', podcast: 'Podcast', contact: 'Contact' },
     hero: { titlePrefix: 'Building the', titleHighlight: 'Future', description: 'Full Stack Developer crafting scalable applications.', btnProjects: 'View Projects', btnArticles: 'Read Articles' },
     sections: {
       feed: 'Unified Feed', feedDesc: 'All content in one place.',
@@ -193,14 +193,15 @@ const EnglishLocalization: LocalizationFactory = {
       resume: 'Resume', experience: 'Experience', skills: 'Skills', education: 'Education', summary: 'Summary',
       dashboard: 'Content Analytics', dashboardDesc: 'Insights generated dynamically from the content tree using Visitor Pattern.',
       podcast: 'Tech Talks Podcast', podcastDesc: 'Listen to my latest thoughts on technology and career.',
+      contact: 'Get in Touch', contactDesc: 'Use the Smart Hub below to send a message.',
     },
-    actions: { readMore: 'Read more', downloadPdf: 'PDF', view: 'View', expand: 'Show Related', collapse: 'Hide Related', related: 'Related Items', search: 'Search content...', filterBy: 'Filter by', undo: 'Undo Last Action', locked: 'Premium Content', unlock: 'Unlock Access', sortBy: 'Sort by', tour: 'Start Guided Tour', tourNext: 'Next Section', tourPrev: 'Previous', tourEnd: 'End Tour', tourPause: 'Pause Tour', tourPlay: 'Resume Tour', tourSpeed: 'Speed', snapshotSave: 'Save View', snapshotLoad: 'Load View', snapshotPlaceholder: 'Snapshot name...', listen: 'Listen', playing: 'Now Playing' }
+    actions: { readMore: 'Read more', downloadPdf: 'PDF', view: 'View', expand: 'Show Related', collapse: 'Hide Related', related: 'Related Items', search: 'Search content...', filterBy: 'Filter by', undo: 'Undo Last Action', locked: 'Premium Content', unlock: 'Unlock Access', sortBy: 'Sort by', tour: 'Start Guided Tour', tourNext: 'Next Section', tourPrev: 'Previous', tourEnd: 'End Tour', tourPause: 'Pause Tour', tourPlay: 'Resume Tour', tourSpeed: 'Speed', snapshotSave: 'Save View', snapshotLoad: 'Load View', snapshotPlaceholder: 'Snapshot name...', listen: 'Listen', playing: 'Now Playing', submit: 'Send Message' }
   })
 };
 const ThaiLocalization: LocalizationFactory = {
   code: 'TH',
   getLabels: () => ({
-    nav: { home: 'หน้าหลัก', feed: 'ฟีดรวม', projects: 'โปรเจกต์', articles: 'บทความ', blog: 'บล็อก', docs: 'เอกสาร', resume: 'เรซูเม่', dashboard: 'สถิติ', podcast: 'พอดแคสต์' },
+    nav: { home: 'หน้าหลัก', feed: 'ฟีดรวม', projects: 'โปรเจกต์', articles: 'บทความ', blog: 'บล็อก', docs: 'เอกสาร', resume: 'เรซูเม่', dashboard: 'สถิติ', podcast: 'พอดแคสต์', contact: 'ติดต่อ' },
     hero: { titlePrefix: 'สร้างสรรค์', titleHighlight: 'อนาคต', description: 'นักพัฒนา Full Stack ผู้หลงใหลในการสร้างแอปพลิเคชันที่ขยายตัวได้จริง', btnProjects: 'ดูผลงาน', btnArticles: 'อ่านบทความ' },
     sections: {
       feed: 'ฟีดรวมเนื้อหา', feedDesc: 'รวมทุกความเคลื่อนไหวไว้ที่เดียว',
@@ -211,8 +212,9 @@ const ThaiLocalization: LocalizationFactory = {
       resume: 'ประวัติย่อ', experience: 'ประสบการณ์ทำงาน', skills: 'ทักษะ', education: 'การศึกษา', summary: 'สรุปข้อมูล',
       dashboard: 'สถิติเนื้อหา', dashboardDesc: 'ข้อมูลเชิงลึกที่สร้างขึ้นจากการวิเคราะห์โครงสร้าง Tree ด้วย Visitor Pattern',
       podcast: 'รายการพอดแคสต์', podcastDesc: 'ฟังความคิดเห็นล่าสุดเกี่ยวกับเทคโนโลยีและอาชีพ',
+      contact: 'ติดต่อเรา', contactDesc: 'ส่งข้อความผ่านระบบ Smart Hub',
     },
-    actions: { readMore: 'อ่านต่อ', downloadPdf: 'ดาวน์โหลด PDF', view: 'ดู', expand: 'ดูที่เกี่ยวข้อง', collapse: 'ซ่อน', related: 'เนื้อหาที่เกี่ยวข้อง', search: 'ค้นหาเนื้อหา...', filterBy: 'กรองตาม', undo: 'ยกเลิกคำสั่งล่าสุด', locked: 'เนื้อหาพรีเมียม', unlock: 'ปลดล็อก', sortBy: 'เรียงตาม', tour: 'เริ่มการนำชม', tourNext: 'ถัดไป', tourPrev: 'ย้อนกลับ', tourEnd: 'จบการนำชม', tourPause: 'หยุดชั่วคราว', tourPlay: 'เล่นต่อ', tourSpeed: 'ความเร็ว', snapshotSave: 'บันทึกมุมมอง', snapshotLoad: 'โหลดมุมมอง', snapshotPlaceholder: 'ตั้งชื่อ...', listen: 'รับฟัง', playing: 'กำลังเล่น' }
+    actions: { readMore: 'อ่านต่อ', downloadPdf: 'ดาวน์โหลด PDF', view: 'ดู', expand: 'ดูที่เกี่ยวข้อง', collapse: 'ซ่อน', related: 'เนื้อหาที่เกี่ยวข้อง', search: 'ค้นหาเนื้อหา...', filterBy: 'กรองตาม', undo: 'ยกเลิกคำสั่งล่าสุด', locked: 'เนื้อหาพรีเมียม', unlock: 'ปลดล็อก', sortBy: 'เรียงตาม', tour: 'เริ่มการนำชม', tourNext: 'ถัดไป', tourPrev: 'ย้อนกลับ', tourEnd: 'จบการนำชม', tourPause: 'หยุดชั่วคราว', tourPlay: 'เล่นต่อ', tourSpeed: 'ความเร็ว', snapshotSave: 'บันทึกมุมมอง', snapshotLoad: 'โหลดมุมมอง', snapshotPlaceholder: 'ตั้งชื่อ...', listen: 'รับฟัง', playing: 'กำลังเล่น', submit: 'ส่งข้อความ' }
   })
 };
 
@@ -238,7 +240,7 @@ const ModernStyle: StyleFactory = {
   name: 'Modern',
   getMainLayoutClass: () => "bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300",
   getCardClass: () => "bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden relative",
-  getButtonClass: (variant) => { if (variant === 'primary') return "px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all"; if (variant === 'text') return "px-3 py-1 text-blue-600 dark:text-blue-400 font-medium hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"; return "px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"; },
+  getButtonClass: (variant) => { if (variant === 'primary') return "px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"; if (variant === 'text') return "px-3 py-1 text-blue-600 dark:text-blue-400 font-medium hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-all"; return "px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-all"; },
   getNavbarClass: () => "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50",
   getBadgeClass: () => "px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full",
   getSectionTitleClass: () => "text-3xl font-bold text-gray-900 dark:text-white",
@@ -252,7 +254,7 @@ const MinimalStyle: StyleFactory = {
   name: 'Minimal',
   getMainLayoutClass: () => "bg-white dark:bg-black min-h-screen transition-colors duration-300",
   getCardClass: () => "bg-transparent border-b border-gray-200 dark:border-gray-800 py-6 hover:opacity-80 transition-opacity relative",
-  getButtonClass: (variant) => { if (variant === 'primary') return "px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-none uppercase tracking-widest text-xs font-bold hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors"; if (variant === 'text') return "px-3 py-1 text-black dark:text-white uppercase tracking-wider text-xs font-bold hover:underline transition-all"; return "px-6 py-2 bg-transparent text-black dark:text-white border border-black dark:border-white rounded-none uppercase tracking-widest text-xs font-bold hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"; },
+  getButtonClass: (variant) => { if (variant === 'primary') return "px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-none uppercase tracking-widest text-xs font-bold hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"; if (variant === 'text') return "px-3 py-1 text-black dark:text-white uppercase tracking-wider text-xs font-bold hover:underline transition-all"; return "px-6 py-2 bg-transparent text-black dark:text-white border border-black dark:border-white rounded-none uppercase tracking-widest text-xs font-bold hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors"; },
   getNavbarClass: () => "bg-white dark:bg-black border-b-2 border-black dark:border-white sticky top-0 z-50",
   getBadgeClass: () => "px-2 py-1 border border-gray-400 text-gray-600 dark:text-gray-400 text-[10px] uppercase tracking-wider",
   getSectionTitleClass: () => "text-2xl font-normal text-black dark:text-white uppercase tracking-[0.2em]",
@@ -266,7 +268,7 @@ const FutureStyle: StyleFactory = {
   name: 'Future',
   getMainLayoutClass: () => "bg-slate-900 dark:bg-black min-h-screen transition-colors duration-300",
   getCardClass: () => "bg-slate-800/50 dark:bg-gray-900/80 backdrop-blur border border-cyan-500/30 dark:border-cyan-500/50 hover:border-cyan-400 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all duration-300 rounded-none skew-x-[-2deg] relative",
-  getButtonClass: (variant) => { if (variant === 'primary') return "px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold uppercase tracking-wider clip-path-slant hover:brightness-110 transition-all shadow-[0_0_10px_rgba(6,182,212,0.5)]"; if (variant === 'text') return "px-3 py-1 text-cyan-400 font-bold uppercase tracking-wider hover:text-cyan-200 hover:shadow-[0_0_10px_rgba(6,182,212,0.3)] transition-all"; return "px-6 py-2 bg-transparent text-cyan-400 border border-cyan-500/50 font-bold uppercase tracking-wider hover:bg-cyan-950/30 transition-all"; },
+  getButtonClass: (variant) => { if (variant === 'primary') return "px-6 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold uppercase tracking-wider clip-path-slant hover:brightness-110 transition-all shadow-[0_0_10px_rgba(6,182,212,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"; if (variant === 'text') return "px-3 py-1 text-cyan-400 font-bold uppercase tracking-wider hover:text-cyan-200 hover:shadow-[0_0_10px_rgba(6,182,212,0.3)] transition-all"; return "px-6 py-2 bg-transparent text-cyan-400 border border-cyan-500/50 font-bold uppercase tracking-wider hover:bg-cyan-950/30 transition-all"; },
   getNavbarClass: () => "bg-slate-900/90 border-b border-cyan-500/30 sticky top-0 z-50 shadow-[0_0_20px_rgba(6,182,212,0.15)]",
   getBadgeClass: () => "px-2 py-1 bg-cyan-950/50 text-cyan-400 border border-cyan-500/30 text-xs font-bold uppercase",
   getSectionTitleClass: () => "text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 uppercase italic",
@@ -280,7 +282,7 @@ const AcademicStyle: StyleFactory = {
   name: 'Academic',
   getMainLayoutClass: () => "bg-[#fdfbf7] dark:bg-[#1a1a1a] min-h-screen transition-colors duration-300",
   getCardClass: () => "bg-white dark:bg-[#2a2a2a] p-1 border border-gray-300 dark:border-gray-600 shadow-sm hover:shadow-md transition-shadow relative",
-  getButtonClass: (variant) => { if (variant === 'primary') return "px-5 py-2 bg-[#8b1e3f] dark:bg-[#d4af37] text-white dark:text-black font-serif italic hover:opacity-90 transition-opacity"; if (variant === 'text') return "px-3 py-1 text-[#8b1e3f] dark:text-[#d4af37] font-serif italic hover:underline transition-all"; return "px-5 py-2 bg-transparent text-[#8b1e3f] dark:text-[#d4af37] border border-[#8b1e3f] dark:border-[#d4af37] font-serif italic hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"; },
+  getButtonClass: (variant) => { if (variant === 'primary') return "px-5 py-2 bg-[#8b1e3f] dark:bg-[#d4af37] text-white dark:text-black font-serif italic hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"; if (variant === 'text') return "px-3 py-1 text-[#8b1e3f] dark:text-[#d4af37] font-serif italic hover:underline transition-all"; return "px-5 py-2 bg-transparent text-[#8b1e3f] dark:text-[#d4af37] border border-[#8b1e3f] dark:border-[#d4af37] font-serif italic hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"; },
   getNavbarClass: () => "bg-[#fdfbf7] dark:bg-[#1a1a1a] border-b-4 border-double border-gray-300 dark:border-gray-600 sticky top-0 z-50",
   getBadgeClass: () => "px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300 text-xs font-serif italic border border-gray-400",
   getSectionTitleClass: () => "text-3xl font-bold text-gray-900 dark:text-gray-100 border-b-2 border-gray-300 dark:border-gray-600 pb-2 inline-block",
@@ -415,6 +417,89 @@ class PausedState implements IAudioPlayerState {
   }
 }
 
+// --- MEDIATOR PATTERN IMPLEMENTATION (SMART CONTACT HUB) ---
+
+interface IMediator {
+  notify(sender: object, event: string): void;
+}
+
+// Colleague Base
+class BaseComponent {
+  protected mediator: IMediator;
+  constructor(mediator?: IMediator) { this.mediator = mediator!; }
+  setMediator(mediator: IMediator) { this.mediator = mediator; }
+}
+
+// Concrete Colleagues
+class ContactInput extends BaseComponent {
+  constructor(public value: string = '', public name: string) { super(); }
+  setValue(val: string) {
+    this.value = val;
+    this.mediator.notify(this, 'change');
+  }
+}
+
+class ContactButton extends BaseComponent {
+  public disabled: boolean = true;
+  click() {
+    if (!this.disabled) this.mediator.notify(this, 'click');
+  }
+  setDisabled(isDisabled: boolean) {
+    this.disabled = isDisabled;
+  }
+}
+
+// Concrete Mediator
+class ContactFormMediator implements IMediator {
+  public email: ContactInput;
+  public message: ContactInput;
+  public submitButton: ContactButton;
+
+  // Callback to update React UI
+  private uiUpdater: (state: any) => void;
+
+  constructor(uiUpdater: (state: any) => void) {
+    this.uiUpdater = uiUpdater;
+    this.email = new ContactInput('', 'email');
+    this.email.setMediator(this);
+
+    this.message = new ContactInput('', 'message');
+    this.message.setMediator(this);
+
+    this.submitButton = new ContactButton();
+    this.submitButton.setMediator(this);
+  }
+
+  notify(sender: object, event: string): void {
+    if (event === 'change') {
+      const isEmailValid = this.email.value.includes('@') && this.email.value.includes('.');
+      const isMessageValid = this.message.value.length >= 10;
+
+      this.submitButton.setDisabled(!(isEmailValid && isMessageValid));
+      this.syncState();
+    }
+
+    if (event === 'click') {
+      notify.notify("Sending Message...", "INFO");
+      setTimeout(() => {
+        notify.notify("Message Sent Successfully!", "SUCCESS");
+        this.email.value = "";
+        this.message.value = "";
+        this.submitButton.setDisabled(true);
+        this.syncState();
+      }, 1500);
+    }
+  }
+
+  syncState() {
+    this.uiUpdater({
+      email: this.email.value,
+      message: this.message.value,
+      isSubmitDisabled: this.submitButton.disabled
+    });
+  }
+}
+
 // --- FLYWEIGHT PATTERN IMPLEMENTATION (PARTICLE BACKGROUND) ---
 
 // 1. Flyweight Interface & Concrete Flyweight (Intrinsic State)
@@ -423,9 +508,9 @@ interface ParticleFlyweight {
 }
 
 class IconParticleFlyweight implements ParticleFlyweight {
-  constructor(private symbol: string, private color: string) { }
+  constructor(private symbol: string, private color: string, private font: string = 'monospace') { }
   draw(ctx: CanvasRenderingContext2D, x: number, y: number, size: number) {
-    ctx.font = `${size}px monospace`;
+    ctx.font = `${size}px ${this.font}`;
     ctx.fillStyle = this.color;
     ctx.globalAlpha = 0.6;
     ctx.fillText(this.symbol, x, y);
@@ -437,11 +522,12 @@ class IconParticleFlyweight implements ParticleFlyweight {
 class ParticleFactory {
   private flyweights: Map<string, ParticleFlyweight> = new Map();
 
-  getFlyweight(key: string, symbol: string, color: string): ParticleFlyweight {
-    if (!this.flyweights.has(key)) {
-      this.flyweights.set(key, new IconParticleFlyweight(symbol, color));
+  getFlyweight(key: string, symbol: string, color: string, font: string = 'monospace'): ParticleFlyweight {
+    const uniqueKey = `${key}-${color}-${font}`;
+    if (!this.flyweights.has(uniqueKey)) {
+      this.flyweights.set(uniqueKey, new IconParticleFlyweight(symbol, color, font));
     }
-    return this.flyweights.get(key)!;
+    return this.flyweights.get(uniqueKey)!;
   }
 }
 
@@ -454,21 +540,36 @@ class ParticleContext {
   size: number;
   flyweight: ParticleFlyweight;
 
-  constructor(w: number, h: number, factory: ParticleFactory) {
+  constructor(w: number, h: number, factory: ParticleFactory, styleName: string, isDark: boolean) {
     this.x = Math.random() * w;
     this.y = Math.random() * h;
     this.vx = (Math.random() - 0.5) * 0.5; // Velocity X
     this.vy = (Math.random() - 0.5) * 0.5; // Velocity Y
     this.size = Math.random() * 20 + 10;
 
-    // Assign a flyweight based on random choice
-    const type = Math.floor(Math.random() * 5);
-    // Intrinsic states shared among particles
-    if (type === 0) this.flyweight = factory.getFlyweight('react', '⚛', '#61dafb');
-    else if (type === 1) this.flyweight = factory.getFlyweight('code', '</>', '#facc15');
-    else if (type === 2) this.flyweight = factory.getFlyweight('ts', 'TS', '#3178c6');
-    else if (type === 3) this.flyweight = factory.getFlyweight('db', '⎔', '#10b981');
-    else this.flyweight = factory.getFlyweight('cloud', '☁', '#a8a29e');
+    // Determine colors based on style and theme
+    let colors = ['#61dafb', '#facc15', '#3178c6', '#10b981', '#a8a29e']; // Modern Default
+    let symbols = ['⚛', '</>', 'TS', '⎔', '☁'];
+    let font = 'monospace';
+
+    if (styleName === 'Minimal') {
+      colors = isDark ? ['#ffffff', '#aaaaaa', '#888888'] : ['#000000', '#333333', '#555555'];
+      symbols = ['●', '■', '▲', '○', '□'];
+      font = 'sans-serif';
+    } else if (styleName === 'Future') {
+      colors = ['#00f3ff', '#bc13fe', '#00ff9d', '#ff0055', '#eab308'];
+      symbols = ['⚡', '⌬', '⏣', '◈', '⟁'];
+    } else if (styleName === 'Academic') {
+      colors = isDark ? ['#d4af37', '#c0c0c0', '#cd7f32'] : ['#8b1e3f', '#3c3c3c', '#555555'];
+      symbols = ['¶', '§', '†', '‡', '∞'];
+      font = 'serif';
+    }
+
+    const type = Math.floor(Math.random() * symbols.length);
+    const color = colors[type % colors.length];
+    const symbol = symbols[type];
+
+    this.flyweight = factory.getFlyweight(`${styleName}-${type}`, symbol, color, font);
   }
 
   update(w: number, h: number) {
@@ -485,7 +586,7 @@ class ParticleContext {
   }
 }
 
-const ParticleBackground = () => {
+const ParticleBackground = ({ isDark, styleName }: { isDark: boolean, styleName: string }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -497,7 +598,7 @@ const ParticleBackground = () => {
 
     const factory = new ParticleFactory();
     const particles: ParticleContext[] = [];
-    const particleCount = 100; // Even with 500, Flyweight keeps it efficient memory-wise
+    const particleCount = 100;
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -507,9 +608,9 @@ const ParticleBackground = () => {
     window.addEventListener('resize', resize);
     resize();
 
-    // Initialize particles
+    // Initialize particles with current style and theme props
     for (let i = 0; i < particleCount; i++) {
-      particles.push(new ParticleContext(canvas.width, canvas.height, factory));
+      particles.push(new ParticleContext(canvas.width, canvas.height, factory, styleName, isDark));
     }
 
     let animationFrameId: number;
@@ -531,10 +632,77 @@ const ParticleBackground = () => {
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [isDark, styleName]);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-20 dark:opacity-10" />;
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-30" />;
 };
+
+// --- FACADE PATTERN IMPLEMENTATION (SYSTEM INITIALIZER) ---
+
+// Subsystem 1: Theme Manager
+class ThemeManager {
+  static getInitialPreference() {
+    // In a real app, checking localStorage would happen here
+    const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return {
+      dark: isDark,
+      style: 'modern',
+      font: 'sans'
+    };
+  }
+}
+
+// Subsystem 2: Auth Manager
+class AuthManager {
+  static checkSession() {
+    // Simulate token check
+    return false; // Default non-admin
+  }
+}
+
+// Subsystem 3: Analytics System
+class AnalyticsSystem {
+  static init() {
+    console.log("[System] Analytics Initialized");
+  }
+  static trackEvent(event: string) {
+    console.log(`[Analytics] ${event}`);
+  }
+}
+
+// THE FACADE: AppSystemFacade
+class AppSystemFacade {
+  static initializeSystem(callbacks: {
+    setDark: (val: boolean) => void;
+    setStyle: (val: string) => void;
+    setFont: (val: string) => void;
+    setAdmin: (val: boolean) => void;
+    setLang: (val: string) => void;
+  }) {
+    notify.notify("Initializing System...", "INFO");
+
+    // 1. Initialize Analytics
+    AnalyticsSystem.init();
+    AnalyticsSystem.trackEvent("App Launched");
+
+    // 2. Load Theme Preferences
+    const themePrefs = ThemeManager.getInitialPreference();
+    callbacks.setDark(themePrefs.dark);
+    callbacks.setStyle(themePrefs.style);
+    callbacks.setFont(themePrefs.font);
+
+    // 3. Check Auth Status
+    const isAdmin = AuthManager.checkSession();
+    callbacks.setAdmin(isAdmin);
+
+    // 4. Set Default Language
+    callbacks.setLang('en');
+
+    setTimeout(() => {
+      notify.notify("System Ready", "SUCCESS");
+    }, 800);
+  }
+}
 
 
 const ContentDecorator = ({ children, decorations, style }: { children: React.ReactNode, decorations?: DecorationType[], style: StyleFactory }) => {
@@ -965,6 +1133,95 @@ const PodcastSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, 
   );
 };
 
+// --- Contact Section (Uses Mediator Pattern) ---
+const ContactSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, labels: UILabels }) => {
+  const [formState, setFormState] = useState({
+    email: '',
+    message: '',
+    isSubmitDisabled: true
+  });
+
+  const mediator = useMemo(() => new ContactFormMediator(setFormState), []);
+
+  return (
+    <div className={`py-12 px-4 max-w-4xl mx-auto`}>
+      <div className="mb-10 text-center">
+        <h2 className={`${currentStyle.getSectionTitleClass()} mb-2`}>{labels.sections.contact}</h2>
+        <p className="text-gray-500">{labels.sections.contactDesc}</p>
+      </div>
+
+      <div className={`${currentStyle.getCardClass()} p-8 md:p-12 shadow-2xl overflow-hidden relative`}>
+        {/* Background Accent */}
+        <div className={`absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-blue-100 to-transparent dark:from-blue-900/20 dark:to-transparent rounded-bl-full opacity-50 pointer-events-none`}></div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold dark:text-white flex items-center gap-2">
+              <MessageSquare className="text-blue-500" /> Let's Connect
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              I'm always open to discussing new projects, creative ideas or opportunities to be part of your visions.
+            </p>
+            <div className="space-y-4 pt-4">
+              <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-blue-500">
+                  <Mail size={18} />
+                </div>
+                <span>{MOCK_RESUME.contact.email}</span>
+              </div>
+              <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
+                <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-green-500">
+                  <MapPin size={18} />
+                </div>
+                <span>{MOCK_RESUME.contact.location}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+              <div className="relative">
+                <input
+                  type="email"
+                  value={formState.email}
+                  onChange={(e) => mediator.email.setValue(e.target.value)}
+                  className={`w-full pl-10 pr-4 py-2 rounded-lg border ${formState.email.length > 0 && !formState.email.includes('@') ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'} bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 transition-all`}
+                  placeholder="name@example.com"
+                />
+                <Mail className="absolute left-3 top-2.5 text-gray-400" size={18} />
+              </div>
+              {formState.email.length > 0 && !formState.email.includes('@') && (
+                <p className="text-red-500 text-xs mt-1">Please enter a valid email address</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Message</label>
+              <textarea
+                rows={4}
+                value={formState.message}
+                onChange={(e) => mediator.message.setValue(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                placeholder="Tell me about your project..."
+              ></textarea>
+              <p className="text-right text-xs text-gray-400 mt-1">{formState.message.length} / 10 chars minimum</p>
+            </div>
+
+            <button
+              onClick={() => mediator.submitButton.click()}
+              disabled={formState.isSubmitDisabled}
+              className={`w-full py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all ${currentStyle.getButtonClass('primary')}`}
+            >
+              <Send size={18} /> {labels.actions.submit}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const UnifiedFeedSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, labels: UILabels }) => {
   const [layout, setLayout] = useState<LayoutType>('grid');
@@ -1108,6 +1365,19 @@ export default function PersonalWebsite() {
   const [isTourActive, setIsTourActive] = useState(false);
   const [activeNodeId, setActiveNodeId] = useState<string | null>(null);
 
+  // --- FACADE PATTERN IN ACTION ---
+  useEffect(() => {
+    // Single entry point to initialize the entire system
+    AppSystemFacade.initializeSystem({
+      setDark: setIsDark,
+      setStyle: setStyleKey,
+      setFont: setFontKey,
+      setAdmin: setIsAdmin,
+      setLang: setLangKey
+    });
+  }, []); // Run once on mount
+
+  // React-specific logic that needs to stay in Component (syncing DOM classes)
   useEffect(() => {
     if (isDark) { document.documentElement.classList.add('dark'); } else { document.documentElement.classList.remove('dark'); }
   }, [isDark]);
@@ -1135,6 +1405,7 @@ export default function PersonalWebsite() {
     { name: labels.nav.blog, id: 'blog', icon: <FileText size={18} /> },
     { name: labels.nav.docs, id: 'docs', icon: <FileText size={18} /> },
     { name: labels.nav.resume, id: 'resume', icon: <Briefcase size={18} /> },
+    { name: labels.nav.contact, id: 'contact', icon: <Mail size={18} /> },
   ];
 
   const TOUR_SEQUENCE: TourStep[] = [
@@ -1149,6 +1420,7 @@ export default function PersonalWebsite() {
     { type: 'NAV', targetId: 'blog', label: 'Blog' },
     { type: 'NAV', targetId: 'docs', label: 'Docs' },
     { type: 'NAV', targetId: 'resume', label: 'Resume' },
+    { type: 'NAV', targetId: 'contact', label: 'Contact' },
   ];
 
   const [tourIterator] = useState(() => new TourIterator(TOUR_SEQUENCE));
@@ -1161,6 +1433,7 @@ export default function PersonalWebsite() {
     new NavigateCommand('nav-projects', 'Go to Projects', <Code size={16} />, 'projects', setActiveTab, getCurrentTab),
     new NavigateCommand('nav-dashboard', 'Go to Analytics', <PieChart size={16} />, 'dashboard', setActiveTab, getCurrentTab),
     new NavigateCommand('nav-podcast', 'Go to Podcast', <Mic size={16} />, 'podcast', setActiveTab, getCurrentTab),
+    new NavigateCommand('nav-contact', 'Go to Contact', <Mail size={16} />, 'contact', setActiveTab, getCurrentTab),
     new ToggleThemeCommand(() => setIsDark(prev => !prev)),
     new SwitchStyleCommand('style-modern', 'Style: Modern', <Monitor size={16} />, 'modern', setStyleKey, getCurrentStyle),
     new SwitchStyleCommand('style-future', 'Style: Future', <Code size={16} />, 'future', setStyleKey, getCurrentStyle),
@@ -1196,6 +1469,7 @@ export default function PersonalWebsite() {
       case 'blog': return <BlogSection currentStyle={currentStyle} labels={labels} />;
       case 'docs': return <DocsSection currentStyle={currentStyle} labels={labels} />;
       case 'resume': return <ResumeSection currentStyle={currentStyle} labels={labels} />;
+      case 'contact': return <ContactSection currentStyle={currentStyle} labels={labels} />;
       default: return <HeroSection currentStyle={currentStyle} labels={labels} />;
     }
   };
@@ -1204,57 +1478,59 @@ export default function PersonalWebsite() {
     <UserContext.Provider value={{ isAdmin, toggleRole: () => setIsAdmin(!isAdmin) }}>
       <TourContext.Provider value={{ activeNodeId, setActiveNodeId }}>
         {/* ADDED PARTICLE BACKGROUND */}
-        <ParticleBackground />
+        <div className={`${currentStyle.getMainLayoutClass()} ${currentFont.getFontClass()} relative min-h-screen overflow-x-hidden`}>
+          <ParticleBackground isDark={isDark} styleName={currentStyle.name} />
 
-        <div className={`${currentStyle.getMainLayoutClass()} ${currentFont.getFontClass()} relative z-10 bg-transparent`}>
-          <nav className={currentStyle.getNavbarClass()}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between h-16">
-                <div className="flex items-center cursor-pointer" onClick={() => setActiveTab('home')}>
-                  <span className={`text-xl font-bold ${currentStyle.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'}`}>Alex.Dev</span>
-                </div>
-                <div className="hidden lg:flex space-x-6 items-center">
-                  {navItems.map((item) => (
-                    <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors ${activeTab === item.id ? (currentStyle.name === 'Future' ? 'text-cyan-400' : 'text-blue-600 dark:text-blue-400') : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'}`}>{item.icon}<span>{item.name}</span></button>
-                  ))}
-                </div>
-                <div className="lg:hidden flex items-center">
-                  <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-600 dark:text-gray-300">
-                    {isMenuOpen ? <X /> : <Menu />}
-                  </button>
+          <div className="relative z-10 bg-transparent">
+            <nav className={currentStyle.getNavbarClass()}>
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between h-16">
+                  <div className="flex items-center cursor-pointer" onClick={() => setActiveTab('home')}>
+                    <span className={`text-xl font-bold ${currentStyle.name === 'Future' ? 'text-cyan-400' : 'text-gray-900 dark:text-white'}`}>Alex.Dev</span>
+                  </div>
+                  <div className="hidden lg:flex space-x-6 items-center">
+                    {navItems.map((item) => (
+                      <button key={item.id} onClick={() => setActiveTab(item.id)} className={`flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors ${activeTab === item.id ? (currentStyle.name === 'Future' ? 'text-cyan-400' : 'text-blue-600 dark:text-blue-400') : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'}`}>{item.icon}<span>{item.name}</span></button>
+                    ))}
+                  </div>
+                  <div className="lg:hidden flex items-center">
+                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-600 dark:text-gray-300">
+                      {isMenuOpen ? <X /> : <Menu />}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-            {isMenuOpen && (<div className="lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800"><div className="px-2 pt-2 pb-3 space-y-1">{navItems.map(item => (<button key={item.id} onClick={() => { setActiveTab(item.id); setIsMenuOpen(false) }} className="block w-full text-left px-3 py-2 text-gray-600 dark:text-gray-300">{item.name}</button>))}</div></div>)}
-          </nav>
+              {isMenuOpen && (<div className="lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800"><div className="px-2 pt-2 pb-3 space-y-1">{navItems.map(item => (<button key={item.id} onClick={() => { setActiveTab(item.id); setIsMenuOpen(false) }} className="block w-full text-left px-3 py-2 text-gray-600 dark:text-gray-300">{item.name}</button>))}</div></div>)}
+            </nav>
 
-          <main className="pt-8 min-h-screen">
-            {renderContent()}
-          </main>
+            <main className="pt-8 min-h-screen">
+              {renderContent()}
+            </main>
 
-          <ThemeControls
-            currentStyleKey={styleKey} setStyleKey={setStyleKey}
-            isDark={isDark} toggleDark={() => setIsDark(!isDark)}
-            langKey={langKey} setLangKey={setLangKey}
-            fontKey={fontKey} setFontKey={setFontKey}
-            openCommandPalette={() => setIsCommandOpen(true)}
-            undoLastAction={handleUndo}
-            isAdmin={isAdmin}
-            toggleRole={() => setIsAdmin(!isAdmin)}
-            startTour={() => { setIsTourActive(true); setActiveTab('home'); tourIterator.reset(); }}
-          />
+            <ThemeControls
+              currentStyleKey={styleKey} setStyleKey={setStyleKey}
+              isDark={isDark} toggleDark={() => setIsDark(!isDark)}
+              langKey={langKey} setLangKey={setLangKey}
+              fontKey={fontKey} setFontKey={setFontKey}
+              openCommandPalette={() => setIsCommandOpen(true)}
+              undoLastAction={handleUndo}
+              isAdmin={isAdmin}
+              toggleRole={() => setIsAdmin(!isAdmin)}
+              startTour={() => { setIsTourActive(true); setActiveTab('home'); tourIterator.reset(); }}
+            />
 
-          <TourControls
-            iterator={tourIterator}
-            isActive={isTourActive}
-            onStop={() => { setIsTourActive(false); setActiveNodeId(null); }}
-            onExecuteStep={handleTourStep}
-            style={currentStyle}
-            labels={labels}
-          />
+            <TourControls
+              iterator={tourIterator}
+              isActive={isTourActive}
+              onStop={() => { setIsTourActive(false); setActiveNodeId(null); }}
+              onExecuteStep={handleTourStep}
+              style={currentStyle}
+              labels={labels}
+            />
 
-          <ToastContainer style={currentStyle} />
-          <CommandPalette commands={commands} isOpen={isCommandOpen} onClose={() => setIsCommandOpen(false)} style={currentStyle} />
+            <ToastContainer style={currentStyle} />
+            <CommandPalette commands={commands} isOpen={isCommandOpen} onClose={() => setIsCommandOpen(false)} style={currentStyle} />
+          </div>
         </div>
       </TourContext.Provider>
     </UserContext.Provider>
