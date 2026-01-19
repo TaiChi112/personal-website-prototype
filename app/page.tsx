@@ -449,6 +449,12 @@ class ContactButton extends BaseComponent {
   }
 }
 
+interface ContactFormState {
+  email: string;
+  message: string;
+  isSubmitDisabled: boolean;
+}
+
 // Concrete Mediator
 class ContactFormMediator implements IMediator {
   public email: ContactInput;
@@ -456,9 +462,9 @@ class ContactFormMediator implements IMediator {
   public submitButton: ContactButton;
 
   // Callback to update React UI
-  private uiUpdater: (state: any) => void;
+  private uiUpdater: (state: ContactFormState) => void;
 
-  constructor(uiUpdater: (state: any) => void) {
+  constructor(uiUpdater: (state: ContactFormState) => void) {
     this.uiUpdater = uiUpdater;
     this.email = new ContactInput('', 'email');
     this.email.setMediator(this);
@@ -857,7 +863,7 @@ class SwitchStyleCommand implements ICommand { private previousStyle: string; co
 class ToggleRoleCommand implements ICommand { id = 'toggle-role'; label = 'Toggle Admin Role'; icon = <UserCheck size={16} />; constructor(private toggle: () => void) { } execute(): void { this.toggle(); historyManager.push(this); notify.notify('User Role Switched', 'INFO'); } undo(): void { this.toggle(); notify.notify('Undo: Role reverted', 'WARNING'); } matches(query: string): boolean { return this.label.toLowerCase().includes(query.toLowerCase()) || 'admin'.includes(query.toLowerCase()); } }
 class StartTourCommand implements ICommand { id = 'start-tour'; label = 'Start Guided Tour'; icon = <PlayCircle size={16} />; constructor(private start: () => void) { } execute(): void { this.start(); notify.notify('Tour Started', 'SUCCESS'); } undo(): void { notify.notify('Tour stopped', 'INFO'); } matches(query: string): boolean { return this.label.toLowerCase().includes(query.toLowerCase()) || 'tour'.includes(query.toLowerCase()); } }
 
-const CommandPalette = ({ commands, isOpen, onClose, style }: { commands: ICommand[], isOpen: boolean, onClose: () => void, style: StyleFactory }) => { const [query, setQuery] = useState(''); const [selectedIndex, setSelectedIndex] = useState(0); const inputRef = useRef<HTMLInputElement>(null); const filteredCommands = commands.filter(cmd => cmd.matches(query)); useEffect(() => { if (isOpen) { setTimeout(() => inputRef.current?.focus(), 100); setQuery(''); setSelectedIndex(0); } }, [isOpen]); useEffect(() => { const handleKeyDown = (e: KeyboardEvent) => { if (!isOpen) return; if (e.key === 'ArrowDown') { e.preventDefault(); setSelectedIndex(prev => (prev + 1) % filteredCommands.length); } else if (e.key === 'ArrowUp') { e.preventDefault(); setSelectedIndex(prev => (prev - 1 + filteredCommands.length) % filteredCommands.length); } else if (e.key === 'Enter') { e.preventDefault(); if (filteredCommands[selectedIndex]) { filteredCommands[selectedIndex].execute(); onClose(); } } else if (e.key === 'Escape') { onClose(); } }; window.addEventListener('keydown', handleKeyDown); return () => window.removeEventListener('keydown', handleKeyDown); }, [isOpen, filteredCommands, selectedIndex, onClose]); if (!isOpen) return null; return (<div className="fixed inset-0 z-[100] flex items-start justify-center pt-[20vh] px-4 bg-black/50 backdrop-blur-sm transition-opacity"> <div className={`w-full max-w-lg flex flex-col ${style.getModalClass()} animate-in zoom-in-95 duration-200`}> <div className="flex items-center px-4 border-b border-gray-200 dark:border-gray-700"> <Search size={20} className="text-gray-400 mr-3" /> <input ref={inputRef} type="text" className="flex-1 py-4 bg-transparent outline-none text-lg text-gray-900 dark:text-gray-100 placeholder-gray-400" placeholder="Type a command..." value={query} onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }} /> <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"><span className="text-xs font-bold text-gray-400 border border-gray-300 dark:border-gray-600 rounded px-1.5 py-0.5">ESC</span></button> </div> <div className="max-h-[300px] overflow-y-auto py-2"> {filteredCommands.length === 0 ? (<div className="px-4 py-8 text-center text-gray-500">No commands found.</div>) : (filteredCommands.map((cmd, idx) => (<button key={cmd.id} onClick={() => { cmd.execute(); onClose(); }} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${idx === selectedIndex ? (style.name === 'Future' ? 'bg-cyan-900/30 text-cyan-400' : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300') : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>{cmd.icon}<span className="flex-1 font-medium">{cmd.label}</span>{idx === selectedIndex && <ArrowRight size={16} className="opacity-50" />}</button>)))} </div> <div className="px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 flex justify-between items-center"><span>Select <b className="font-bold">↑↓</b></span><span>Execute <b className="font-bold">Enter</b></span></div> </div> </div>); };
+const CommandPalette = ({ commands, isOpen, onClose, style }: { commands: ICommand[], isOpen: boolean, onClose: () => void, style: StyleFactory }) => { const [query, setQuery] = useState(''); const [selectedIndex, setSelectedIndex] = useState(0); const inputRef = useRef<HTMLInputElement>(null); const filteredCommands = commands.filter(cmd => cmd.matches(query)); useEffect(() => { if (isOpen) { setTimeout(() => { inputRef.current?.focus()}, 100); } }, [isOpen]); useEffect(() => { const handleKeyDown = (e: KeyboardEvent) => { if (!isOpen) return; if (e.key === 'ArrowDown') { e.preventDefault(); setSelectedIndex(prev => (prev + 1) % filteredCommands.length); } else if (e.key === 'ArrowUp') { e.preventDefault(); setSelectedIndex(prev => (prev - 1 + filteredCommands.length) % filteredCommands.length); } else if (e.key === 'Enter') { e.preventDefault(); if (filteredCommands[selectedIndex]) { filteredCommands[selectedIndex].execute(); onClose(); } } else if (e.key === 'Escape') { onClose(); } }; window.addEventListener('keydown', handleKeyDown); return () => window.removeEventListener('keydown', handleKeyDown); }, [isOpen, filteredCommands, selectedIndex, onClose]); if (!isOpen) return null; return (<div className="fixed inset-0 z-[100] flex items-start justify-center pt-[20vh] px-4 bg-black/50 backdrop-blur-sm transition-opacity"> <div className={`w-full max-w-lg flex flex-col ${style.getModalClass()} animate-in zoom-in-95 duration-200`}> <div className="flex items-center px-4 border-b border-gray-200 dark:border-gray-700"> <Search size={20} className="text-gray-400 mr-3" /> <input ref={inputRef} type="text" className="flex-1 py-4 bg-transparent outline-none text-lg text-gray-900 dark:text-gray-100 placeholder-gray-400" placeholder="Type a command..." value={query} onChange={(e) => { setQuery(e.target.value); setSelectedIndex(0); }} /> <button onClick={onClose} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"><span className="text-xs font-bold text-gray-400 border border-gray-300 dark:border-gray-600 rounded px-1.5 py-0.5">ESC</span></button> </div> <div className="max-h-[300px] overflow-y-auto py-2"> {filteredCommands.length === 0 ? (<div className="px-4 py-8 text-center text-gray-500">No commands found.</div>) : (filteredCommands.map((cmd, idx) => (<button key={cmd.id} onClick={() => { cmd.execute(); onClose(); }} className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${idx === selectedIndex ? (style.name === 'Future' ? 'bg-cyan-900/30 text-cyan-400' : 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300') : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'}`}>{cmd.icon}<span className="flex-1 font-medium">{cmd.label}</span>{idx === selectedIndex && <ArrowRight size={16} className="opacity-50" />}</button>)))} </div> <div className="px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 text-xs text-gray-500 flex justify-between items-center"><span>Select <b className="font-bold">↑↓</b></span><span>Execute <b className="font-bold">Enter</b></span></div> </div> </div>); };
 
 // Sorting Strategy Classes (Must be defined before usage)
 interface ISortStrategy { label: string; sort(items: UnifiedContentItem[]): UnifiedContentItem[]; }
@@ -889,23 +895,31 @@ class TagsVisitor implements IVisitor { tags = new Set<string>(); visitLeaf(leaf
 
 const InteractiveContentNode = ({ node, style, labels, level = 0 }: { node: LayoutNode | CompositeNode | LeafNode, style: StyleFactory, labels: UILabels, level?: number }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [currentLayout, setCurrentLayout] = useState<LayoutStyleType>('grid');
+  // const [currentLayout, setCurrentLayout] = useState<LayoutStyleType>('grid');
 
   const { activeNodeId } = useContext(TourContext);
   const isComposite = (n: LayoutNode): n is CompositeNode => n.type === 'container';
   const hasChildren = isComposite(node) && node.children && node.children.length > 0;
 
-  useEffect(() => { if (isComposite(node)) setCurrentLayout(node.layoutStyle); }, [node]);
-
+  // useEffect(() => { if (isComposite(node)) setCurrentLayout(node.layoutStyle); }, [node]);
+  const [currentLayout, setCurrentLayout] = useState<LayoutStyleType>(
+    isComposite(node) ? node.layoutStyle : 'grid'
+  );
   useEffect(() => {
     if (activeNodeId === node.id) {
-      setIsOpen(true);
-      const el = document.getElementById(`node-${node.id}`);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const timer = setTimeout(() => {
+        setIsOpen(true); // สั่งเปิด
+
+        // การ Scroll ควรทำหลังจากสั่งเปิดเล็กน้อย เพื่อให้มั่นใจว่า DOM ถูกวาดแล้ว
+        const el = document.getElementById(`node-${node.id}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100); // รอ 100ms (เพียงพอให้ตาเปล่ามองไม่เห็นความหน่วง)
+
+      return () => clearTimeout(timer); // Cleanup function กัน Memory Leak
     }
   }, [activeNodeId, node.id]);
 
-  const contentItem = (node as any).data as UnifiedContentItem | undefined;
+  const contentItem = 'data' in node ? node.data as UnifiedContentItem | undefined : undefined;
 
   const renderContentCard = () => {
     if (!contentItem && !isComposite(node)) return null;
@@ -957,8 +971,8 @@ const InteractiveContentNode = ({ node, style, labels, level = 0 }: { node: Layo
   };
 
   const renderChildren = () => {
+    // useEffect(() => { if (!contentItem && isComposite(node)) setIsOpen(true); }, []);
     if (!isComposite(node)) return null;
-    useEffect(() => { if (!contentItem && isComposite(node)) setIsOpen(true); }, []);
     const shouldRender = contentItem ? isOpen : (isOpen || true);
     if (!shouldRender) return null;
     return (
@@ -1157,10 +1171,10 @@ const ContactSection = ({ currentStyle, labels }: { currentStyle: StyleFactory, 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 relative z-10">
           <div className="space-y-6">
             <h3 className="text-2xl font-bold dark:text-white flex items-center gap-2">
-              <MessageSquare className="text-blue-500" /> Let's Connect
+              <MessageSquare className="text-blue-500" /> Let`s Connect
             </h3>
             <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-              I'm always open to discussing new projects, creative ideas or opportunities to be part of your visions.
+              I`m always open to discussing new projects, creative ideas or opportunities to be part of your visions.
             </p>
             <div className="space-y-4 pt-4">
               <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400">
@@ -1529,7 +1543,7 @@ export default function PersonalWebsite() {
             />
 
             <ToastContainer style={currentStyle} />
-            <CommandPalette commands={commands} isOpen={isCommandOpen} onClose={() => setIsCommandOpen(false)} style={currentStyle} />
+            <CommandPalette key={isCommandOpen ? 'open' : 'closed'} commands={commands} isOpen={isCommandOpen} onClose={() => setIsCommandOpen(false)} style={currentStyle} />
           </div>
         </div>
       </TourContext.Provider>
