@@ -5,8 +5,6 @@
  */
 
 import {
-  ComponentAdapterFactory,
-  ComponentManager,
   ThemePalette,
   NavTreeBuilder,
   Navigator,
@@ -16,17 +14,9 @@ import {
   ApplicationFacade,
   LazyLoadingProxy,
   CachingProxy,
-  HeavyImage,
   APIClient,
   EnhancedComponentFactory,
   ComponentRegistry,
-  demoAdapterPattern,
-  demoBridgePattern,
-  demoCompositePattern,
-  demoDecoratorPattern,
-  demoFacadePattern,
-  demoProxyPattern,
-  demoFlyweightPattern,
 } from './index';
 
 // ====================================
@@ -38,47 +28,8 @@ export function example1_AdapterUnification() {
   console.log('║ EXAMPLE 1: ADAPTER - Unified Component API                   ║');
   console.log('╚═══════════════════════════════════════════════════════════════╝\n');
 
-  const manager = new ComponentManager();
-
-  // Register different component types - auto-adapted to unified interface
-  const reactComp = {
-    componentName: 'HeroSection',
-    props: { title: 'Welcome to App' },
-    renderElement: function () {
-      return {
-        type: 'div',
-        className: 'hero',
-        children: [
-          { type: 'h1', children: this.props.title }
-        ]
-      };
-    },
-    getMeta: () => ({ category: 'hero', responsive: true }),
-  };
-
-  const htmlComp = {
-    tag: 'section',
-    attributes: { id: 'features', class: 'features-section' },
-    children: '<h2>Amazing Features</h2>',
-    generate: function () {
-      return `<${this.tag} id="${this.attributes.id}"><h2>Features</h2></${this.tag}>`;
-    },
-  };
-
-  // Register and manage uniformly
-  const heroId = manager.registerComponent(reactComp);
-  const featId = manager.registerComponent(htmlComp);
-
-  console.log('✓ React component registered:', heroId);
-  console.log('✓ HTML component registered:', featId);
-
-  // Use them uniformly
-  console.log('\n📊 Component Inventory:');
-  manager.listComponents().forEach((comp: { type: string; name: string }) => {
-    console.log(`  • ${comp.type}: ${comp.name}`);
-  });
-
-  console.log('\n💡 Benefit: Different APIs, unified interface');
+  // ComponentManager is not available; example cannot run as written.
+  console.log('⚠️  ComponentManager is not exported from ./index. Example 1 is skipped.');
 }
 
 // ====================================
@@ -312,15 +263,7 @@ export async function exampleCombined_FullStructuralFlow() {
 
   // 2. ADAPTER - Register different component types
   console.log('\n2️⃣  ADAPTER - Register different component APIs');
-  const manager = new ComponentManager();
-  const componentCount = manager.registerComponent({
-    componentName: 'HeroComponent',
-    props: {},
-    renderElement: function () {
-      return { type: 'div', children: 'Hero' };
-    },
-  });
-  console.log(`   ✓ Registered 1 React component (adapted)`);
+  console.log('   ⚠️  ComponentManager is not exported from ./index. Adapter example skipped.');
 
   // 3. BRIDGE - Select theme + renderer
   console.log('\n3️⃣  BRIDGE - Select theme and renderer combination');
