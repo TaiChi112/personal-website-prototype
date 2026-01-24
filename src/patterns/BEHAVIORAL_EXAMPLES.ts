@@ -162,26 +162,29 @@ export function exampleIteratingCollections() {
     console.log('='.repeat(60));
 
     const projects: Project[] = [
-        { id: '1', name: 'Website Redesign', status: 'in-progress' },
-        { id: '2', name: 'Mobile App', status: 'planning' },
-        { id: '3', name: 'API Documentation', status: 'completed' },
+        { id: '1', title: 'Website Redesign', status: 'in-progress' },
+        { id: '2', title: 'Mobile App', status: 'planning' },
+        { id: '3', title: 'API Documentation', status: 'completed' },
     ];
 
-    const arrayList = new ProjectList(projects);
-    const linkedList = new LinkedProjectList(projects);
+    const arrayList = new ProjectList();
+    projects.forEach(p => arrayList.addItem(p));
+    
+    const linkedList = new LinkedProjectList();
+    projects.forEach(p => linkedList.addItem(p));
 
     console.log('\n📋 Using Array Iterator:');
     const arrayIter = arrayList.createIterator();
     while (arrayIter.hasNext()) {
         const proj = arrayIter.next();
-        console.log(`  - [${proj.id}] ${proj.name} (${proj.status})`);
+        console.log(`  - [${proj.id}] ${proj.title} (${proj.status})`);
     }
 
     console.log('\n📋 Using Linked List Iterator:');
     const linkedIter = linkedList.createIterator();
     while (linkedIter.hasNext()) {
         const proj = linkedIter.next();
-        console.log(`  - [${proj.id}] ${proj.name} (${proj.status})`);
+        console.log(`  - [${proj.id}] ${proj.title} (${proj.status})`);
     }
 
     console.log('\n✅ Same iteration interface, different storage!');
@@ -199,8 +202,8 @@ export function exampleComponentNotifications() {
     const themeSubject = new ThemeSubject();
     const langSubject = new LanguageSubject();
 
-    const navbar = new NavbarObserver('Navbar');
-    const card = new CardObserver('Card Widget');
+    const navbar = new NavbarObserver();
+    const card = new CardObserver();
 
     console.log('\n👁️ Attaching observers:');
     themeSubject.attach(navbar);
@@ -240,8 +243,8 @@ export function exampleStrategySelection() {
     console.log('📊 Sorted by name:', sorted.map((i) => i.name).join(', '));
 
     console.log('\n💳 Choosing payment strategy:');
-    const processor = new PaymentProcessor(new CreditCardPayment());
-    processor.process(100, '1234-5678-9012-3456');
+    const processor = new PaymentProcessor(new CreditCardPayment('1234-5678-9012-3456'));
+    processor.processPayment(100);
 
     console.log('\n📤 Choosing export strategy:');
     const exporter = new DataExporter(new JSONExportStrategy());
@@ -257,23 +260,23 @@ export function exampleDocumentWorkflow() {
     console.log('EXAMPLE 6: State-Based Behavior');
     console.log('='.repeat(60));
 
-    const workflow = new DocumentWorkflow();
-    const doc = new Document();
+    const workflow = new DocumentWorkflow('Project Proposal');
+    const doc = new Document('Project Proposal');
 
     console.log('\n📄 Document workflow:');
     console.log(`Initial state: ${doc.getState()}`);
 
-    workflow.draft(doc);
-    workflow.publish(doc);
+    workflow.draftDocument();
+    workflow.publishDocument();
     console.log(`After publish: ${doc.getState()}`);
 
-    workflow.review(doc);
+    workflow.reviewDocument();
     console.log(`After review: ${doc.getState()}`);
 
-    workflow.approve(doc);
+    workflow.approveDocument();
     console.log(`After approve: ${doc.getState()}`);
 
-    workflow.archive(doc);
+    workflow.archiveDocument();
     console.log(`After archive: ${doc.getState()}`);
 }
 
@@ -312,15 +315,18 @@ export function exampleFormMediator() {
     const mediator = new FormMediator();
 
     console.log('\n📝 Simulating form interaction:');
-    const emailField = mediator.getInputField('email');
+    // Access fields using public getters as defined in FormMediator
+    const emailField: InputField = mediator.getEmailField();
+    const submitButton: SubmitButton = mediator.getSubmitButton();
+
     emailField.setValue('test@example.com');
 
     console.log('\nValidation output:');
-    console.log(`  Submit button enabled: ${mediator.getSubmitButton('submit').isEnabled()}`);
+    console.log(`  Submit button enabled: ${submitButton.isEnabled()}`);
 
     console.log('\nInvalid email:');
     emailField.setValue('invalid');
-    console.log(`  Submit button enabled: ${mediator.getSubmitButton('submit').isEnabled()}`);
+    console.log(`  Submit button enabled: ${submitButton.isEnabled()}`);
 }
 
 /**
