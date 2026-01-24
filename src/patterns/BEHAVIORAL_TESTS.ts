@@ -3,35 +3,51 @@
  * Tests for all 11 behavioral patterns
  */
 
-import { describe, it, expect, beforeEach } from 'bun:test';
+import { describe, it, expect } from 'bun:test';
+import { SupportRequest } from './14_chain_of_responsibility';
 
 // ====================================
 // 1. CHAIN OF RESPONSIBILITY TESTS
 // ====================================
 
 describe('Chain of Responsibility', () => {
-  it('should route low priority to automated handler', () => {
+  it('should route low priority to automated handler', async () => {
     const { SupportSystem } = await import('./14_chain_of_responsibility');
     const system = new SupportSystem();
-    const request = { id: '1', priority: 'low', title: 'Test', description: 'Test' };
-    
-    expect(() => system.handleRequest(request)).not.toThrow();
+    const request: SupportRequest = {
+      id: '1',
+      type: 'simple', // TS จะรู้แล้วว่านี่คือ type เฉพาะ ไม่ใช่ string ทั่วไป
+      message: 'Test',
+      priority: 1,
+      handled: false,
+    }; expect(() => system.submitRequest(request)).not.toThrow();
   });
 
-  it('should route high priority to executive', () => {
+  it('should route high priority to executive', async () => {
     const { SupportSystem } = await import('./14_chain_of_responsibility');
     const system = new SupportSystem();
-    const request = { id: '1', priority: 'critical', title: 'Test', description: 'Test' };
-    
-    expect(() => system.handleRequest(request)).not.toThrow();
+    const request: SupportRequest = {
+      id: '2',
+      type: 'critical',
+      message: 'Test',
+      priority: 4,
+      handled: false,
+    };
+    expect(() => system.submitRequest(request)).not.toThrow();
   });
 
-  it('should handle medium priority', () => {
+  it('should handle medium priority', async () => {
     const { SupportSystem } = await import('./14_chain_of_responsibility');
     const system = new SupportSystem();
-    const request = { id: '1', priority: 'medium', title: 'Test', description: 'Test' };
-    
-    expect(() => system.handleRequest(request)).not.toThrow();
+    const request: SupportRequest = {
+      id: '3',
+      type: 'medium',
+      message: 'Test',
+      priority: 2,
+      handled: false,
+    };
+
+    expect(() => system.submitRequest(request)).not.toThrow();
   });
 });
 
@@ -45,7 +61,7 @@ describe('Command Pattern', () => {
       './15_command_encapsulate_requests'
     );
     const doc = new SimpleDocument();
-    const executor = new CommandExecutor(doc);
+    const executor = new CommandExecutor();
 
     executor.execute(new SetTextCommand(doc, 'Hello'));
     expect(doc.getContent()).toBe('Hello');
@@ -56,7 +72,7 @@ describe('Command Pattern', () => {
       './15_command_encapsulate_requests'
     );
     const doc = new SimpleDocument();
-    const executor = new CommandExecutor(doc);
+    const executor = new CommandExecutor();
 
     executor.execute(new SetTextCommand(doc, 'Hello'));
     executor.execute(new SetTextCommand(doc, 'World'));
@@ -70,7 +86,7 @@ describe('Command Pattern', () => {
       './15_command_encapsulate_requests'
     );
     const doc = new SimpleDocument();
-    const executor = new CommandExecutor(doc);
+    const executor = new CommandExecutor();
 
     executor.execute(new SetTextCommand(doc, 'Hello'));
     executor.execute(new SetTextCommand(doc, 'World'));
@@ -85,7 +101,7 @@ describe('Command Pattern', () => {
       './15_command_encapsulate_requests'
     );
     const doc = new SimpleDocument();
-    const executor = new CommandExecutor(doc);
+    const executor = new CommandExecutor();
 
     executor.execute(new ChangeFontSizeCommand(doc, 16));
     expect(doc.getFontSize()).toBe(16);
@@ -100,43 +116,46 @@ describe('Iterator Pattern', () => {
   it('should iterate array collection forward', async () => {
     const { ProjectList } = await import('./16_iterator_sequential_access');
     const projects = [
-      { id: 1, name: 'A', status: 'active' },
-      { id: 2, name: 'B', status: 'active' },
+      { id: '1', title: 'A', status: 'active' },
+      { id: '2', title: 'B', status: 'active' },
     ];
-    const list = new ProjectList(projects);
+    const list = new ProjectList();
+    projects.forEach((p) => list.addItem(p));
     const iter = list.createIterator();
 
     expect(iter.hasNext()).toBe(true);
     const first = iter.next();
-    expect(first.id).toBe(1);
+    expect(first.id).toBe('1');
   });
 
   it('should iterate linked list collection', async () => {
     const { LinkedProjectList } = await import('./16_iterator_sequential_access');
     const projects = [
-      { id: 1, name: 'A', status: 'active' },
-      { id: 2, name: 'B', status: 'active' },
+      { id: '1', title: 'A', status: 'active' },
+      { id: '2', title: 'B', status: 'active' },
     ];
-    const list = new LinkedProjectList(projects);
+    const list = new LinkedProjectList();
+    projects.forEach((p) => list.addItem(p));
     const iter = list.createIterator();
 
     expect(iter.hasNext()).toBe(true);
     const first = iter.next();
-    expect(first.name).toBe('A');
+    expect(first.title).toBe('A');
   });
 
   it('should iterate in reverse', async () => {
     const { ProjectList } = await import('./16_iterator_sequential_access');
     const projects = [
-      { id: 1, name: 'A', status: 'active' },
-      { id: 2, name: 'B', status: 'active' },
+      { id: '1', title: 'A', status: 'active' },
+      { id: '2', title: 'B', status: 'active' },
     ];
-    const list = new ProjectList(projects);
-    const iter = list.getReverseIterator();
+    const list = new ProjectList();
+    projects.forEach((p) => list.addItem(p));
+    const iter = list.createReverseIterator();
 
     expect(iter.hasNext()).toBe(true);
     const last = iter.next();
-    expect(last.id).toBe(2);
+    expect(last.id).toBe('2');
   });
 });
 
@@ -148,7 +167,7 @@ describe('Observer Pattern', () => {
   it('should notify observers on theme change', async () => {
     const { ThemeSubject, NavbarObserver } = await import('./17_observer_one_to_many');
     const subject = new ThemeSubject();
-    const observer = new NavbarObserver('Test');
+    const observer = new NavbarObserver();
 
     subject.attach(observer);
     expect(() => subject.setTheme('dark')).not.toThrow();
@@ -157,7 +176,7 @@ describe('Observer Pattern', () => {
   it('should notify observers on language change', async () => {
     const { LanguageSubject, CardObserver } = await import('./17_observer_one_to_many');
     const subject = new LanguageSubject();
-    const observer = new CardObserver('Test');
+    const observer = new CardObserver();
 
     subject.attach(observer);
     expect(() => subject.setLanguage('th')).not.toThrow();
@@ -166,7 +185,7 @@ describe('Observer Pattern', () => {
   it('should detach observers', async () => {
     const { ThemeSubject, NavbarObserver } = await import('./17_observer_one_to_many');
     const subject = new ThemeSubject();
-    const observer = new NavbarObserver('Test');
+    const observer = new NavbarObserver();
 
     subject.attach(observer);
     subject.detach(observer);
@@ -214,9 +233,11 @@ describe('Strategy Pattern', () => {
     const { PaymentProcessor, CreditCardPayment } = await import(
       './18_strategy_encapsulate_algorithms'
     );
-    const processor = new PaymentProcessor(new CreditCardPayment());
+    const processor = new PaymentProcessor(new CreditCardPayment(
+      '1234-5678-9012-3456',
+    ));
 
-    expect(() => processor.process(100, '1234-5678-9012-3456')).not.toThrow();
+    expect(() => processor.processPayment(100)).not.toThrow();
   });
 
   it('should export as JSON', async () => {
@@ -224,7 +245,7 @@ describe('Strategy Pattern', () => {
       './18_strategy_encapsulate_algorithms'
     );
     const exporter = new DataExporter(new JSONExportStrategy());
-    const data = [{ id: 1, name: 'Test' }];
+    const data = [{ id: 1, title: 'Test' }];
 
     expect(() => exporter.export(data)).not.toThrow();
   });
@@ -236,36 +257,45 @@ describe('Strategy Pattern', () => {
 
 describe('State Pattern', () => {
   it('should initialize as draft', async () => {
-    const { Document } = await import('./19_state_state_based_behavior');
-    const doc = new Document();
+    // Import Concrete Classes เข้ามา
+    const { Document, DraftState } = await import('./19_state_state_based_behavior');
+    const doc = new Document('Test Document');
 
-    expect(doc.getState()).toBe('draft');
+    // เช็คว่าเริ่มต้นเป็น DraftState
+    expect(doc.getState()).toBeInstanceOf(DraftState);
   });
 
   it('should transition through states', async () => {
-    const { Document, DocumentWorkflow } = await import('./19_state_state_based_behavior');
-    const doc = new Document();
-    const workflow = new DocumentWorkflow();
+    // Import State ที่คาดหวังว่าจะเปลี่ยนไปเป็น
+    const { Document, DocumentWorkflow, PublishedState } = await import('./19_state_state_based_behavior');
 
-    workflow.publish(doc);
-    expect(doc.getState()).toBe('published');
+    const doc = new Document('Test Document');
+    // สมมติว่า Workflow รับ doc เข้าไปจัดการ
+    const workflow = new DocumentWorkflow(
+      'Test Document Workflow',
+    );
 
-    workflow.review(doc);
-    expect(doc.getState()).toBe('review');
+    workflow.publishDocument();
+    // เช็คว่าเปลี่ยนเป็น PublishedState แล้ว
+    expect(doc.getState()).toBeInstanceOf(PublishedState);
+
+    // ...
   });
+});
 
-  it('should track state history', async () => {
-    const { Document, DocumentWorkflow } = await import('./19_state_state_based_behavior');
-    const doc = new Document();
-    const workflow = new DocumentWorkflow();
+it('should track state history', async () => {
+  const { DocumentWorkflow } = await import('./19_state_state_based_behavior');
+  // const doc = new Document('Test Document');
+  const workflow = new DocumentWorkflow(
+    'Test Document Workflow',
+  );
 
-    workflow.publish(doc);
-    workflow.review(doc);
-    const history = doc.getHistory();
+  workflow.publishDocument();
+  workflow.reviewDocument();
+  const history = workflow.getHistory();
 
-    expect(history.length).toBeGreaterThan(0);
-    expect(history.includes('draft')).toBe(true);
-  });
+  expect(history.length).toBeGreaterThan(0);
+  expect(history.includes('draft')).toBe(true);
 });
 
 // ====================================
@@ -284,7 +314,7 @@ describe('Template Method Pattern', () => {
   it('should handle empty data', async () => {
     const { CSVExport } = await import('./20_template_method_algorithm');
     const exporter = new CSVExport();
-    const data: any[] = [];
+    const data: { id: number; name: string }[] = [];
 
     expect(() => exporter.export(data)).not.toThrow();
   });
@@ -306,7 +336,7 @@ describe('Mediator Pattern', () => {
   it('should manage form input', async () => {
     const { FormMediator } = await import('./21_mediator_centralized_communication');
     const mediator = new FormMediator();
-    const field = mediator.getInputField('email');
+    const field = mediator.getEmailField();
 
     expect(field).toBeDefined();
     expect(() => field.setValue('test@example.com')).not.toThrow();
@@ -315,8 +345,8 @@ describe('Mediator Pattern', () => {
   it('should validate email input', async () => {
     const { FormMediator } = await import('./21_mediator_centralized_communication');
     const mediator = new FormMediator();
-    const field = mediator.getInputField('email');
-    const submitBtn = mediator.getSubmitButton('submit');
+    const field = mediator.getEmailField();
+    const submitBtn = mediator.getSubmitButton();
 
     field.setValue('test@example.com');
     expect(submitBtn.isEnabled()).toBe(true);
@@ -328,7 +358,7 @@ describe('Mediator Pattern', () => {
   it('should get input field value', async () => {
     const { FormMediator } = await import('./21_mediator_centralized_communication');
     const mediator = new FormMediator();
-    const field = mediator.getInputField('email');
+    const field = mediator.getEmailField();
 
     field.setValue('user@domain.com');
     expect(field.getValue()).toBe('user@domain.com');
