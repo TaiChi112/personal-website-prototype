@@ -58,32 +58,21 @@ class ClassicThemeFactory implements ThemeFactory {
 
 // User เก็บแค่ Data (SRP: ทำหน้าที่เก็บข้อมูลอย่างเดียว)
 class User {
-    id: string;
-    name: string;
-    constructor(id: string, name: string) {
-        this.id = id;
-        this.name = name;
-    }
+    constructor(public readonly id: string, public readonly name: string) {}
 }
 
 // App หรือ Page ทำหน้าที่จัดการ UI (แยกออกจาก User)
 class UserProfilePage {
-    private factory: ThemeFactory;
-    private user: User;
-
-    constructor(user: User, factory: ThemeFactory) {
-        this.user = user;
-        this.factory = factory;
-    }
+    constructor(private user: User, private factory: ThemeFactory) {}
 
     // ฟีเจอร์: เปลี่ยน Theme ได้ตลอดเวลา (Runtime Switching)
-    public setTheme(factory: ThemeFactory) {
+    public setTheme(factory: ThemeFactory): void {
         this.factory = factory;
         console.log(`\n--- Switching Theme for ${this.user.name} ---`);
         this.renderPage(); // Re-render ทันทีเมื่อเปลี่ยน
     }
 
-    public renderPage() {
+    public renderPage(): void {
         // Factory จะรับประกันว่า Card และ Button เป็น Theme เดียวกันเสมอ (Consistency)
         const card = this.factory.createCard();
         const button = this.factory.createButton();
