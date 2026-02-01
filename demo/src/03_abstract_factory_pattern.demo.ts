@@ -12,7 +12,6 @@ interface IButton { // เพิ่มสินค้าใหม่: ปุ่�
 // ==========================================
 // 2. Abstract Factory (แม่พิมพ์ของโรงงาน)
 // ==========================================
-// เปลี่ยนชื่อจาก StyleComponent เป็น ThemeFactory ให้สื่อความหมาย
 interface ThemeFactory {
     createCard(): ICard;
     createButton(): IButton; // โรงงานต้องผลิตปุ่มได้ด้วย
@@ -58,21 +57,32 @@ class ClassicThemeFactory implements ThemeFactory {
 
 // User เก็บแค่ Data (SRP: ทำหน้าที่เก็บข้อมูลอย่างเดียว)
 class User {
-    constructor(public readonly id: string, public readonly name: string) {}
+    id: string;
+    name: string;
+    constructor(id: string, name: string) {
+        this.id = id;
+        this.name = name;
+    }
 }
 
 // App หรือ Page ทำหน้าที่จัดการ UI (แยกออกจาก User)
 class UserProfilePage {
-    constructor(private user: User, private factory: ThemeFactory) {}
+    private factory: ThemeFactory;
+    private user: User;
+
+    constructor(user: User, factory: ThemeFactory) {
+        this.user = user;
+        this.factory = factory;
+    }
 
     // ฟีเจอร์: เปลี่ยน Theme ได้ตลอดเวลา (Runtime Switching)
-    public setTheme(factory: ThemeFactory): void {
+    public setTheme(factory: ThemeFactory) {
         this.factory = factory;
         console.log(`\n--- Switching Theme for ${this.user.name} ---`);
         this.renderPage(); // Re-render ทันทีเมื่อเปลี่ยน
     }
 
-    public renderPage(): void {
+    public renderPage() {
         // Factory จะรับประกันว่า Card และ Button เป็น Theme เดียวกันเสมอ (Consistency)
         const card = this.factory.createCard();
         const button = this.factory.createButton();
