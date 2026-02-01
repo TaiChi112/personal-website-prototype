@@ -3,7 +3,7 @@
 // ==========================================
 class WebPage {
     // ใช้ Array เก็บ parts เพื่อความยืดหยุ่น (เผื่อมี Sidebar, Widget)
-    private readonly parts: string[] = [];
+    private parts: string[] = [];
 
     public add(part: string): void {
         this.parts.push(part);
@@ -72,26 +72,23 @@ class PageDirector {
     // ไม่เก็บ state ของ builder แต่รับเข้ามาเป็น parameter ในแต่ละสูตรแทน
     // เพื่อให้ Director เป็น Stateless (Reusable สุดๆ)
 
-    public makeHomePage(builder: IPageBuilder): WebPage {
+    public makeHomePage(builder: IPageBuilder): void {
         builder.reset()
             .setHeader("Welcome Home")
             .addContent("This is the main lobby.")
             .setFooter("Copyright 2026");
-        return builder.getResult();
     }
 
-    public makeAboutPage(builder: IPageBuilder): WebPage {
+    public makeAboutPage(builder: IPageBuilder): void {
         builder.reset()
             .setHeader("About Us")
             .addContent("We are a CS student team.");
         // สังเกต: About Page สูตรนี้ไม่มี Footer ก็ทำได้!
-        return builder.getResult();
     }
 
-    public makeMinimalPage(builder: IPageBuilder, msg: string): WebPage {
+    public makeMinimalPage(builder: IPageBuilder, msg: string): void {
         builder.reset()
             .addContent(msg);
-        return builder.getResult();
     }
 }
 
@@ -103,12 +100,12 @@ const builder = new HTMLPageBuilder();
 const director = new PageDirector();
 
 console.log("--- 1. Build Standard Home Page ---");
-const homePage = director.makeHomePage(builder);
-console.log(homePage.show());
+director.makeHomePage(builder);
+console.log(builder.getResult().show());
 
 console.log("\n--- 2. Build Custom About Page (No Footer) ---");
-const aboutPage = director.makeAboutPage(builder);
-console.log(aboutPage.show());
+director.makeAboutPage(builder);
+console.log(builder.getResult().show());
 
 console.log("\n--- 3. Build Without Director (Manual / Custom) ---");
 // Builder เก่งพอที่จะให้ User ใช้งานเองได้ (Flexible)
