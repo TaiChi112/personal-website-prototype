@@ -5,23 +5,24 @@ interface Prototype<T> {
 
 // 2. Concrete Class: ตัวเอกสาร SDLC ของเรา
 class SDLCProjectDocument implements Prototype<SDLCProjectDocument> {
-    public title: string;
-    public sections: string[]; // สมมติว่าเป็นเนื้อหาที่เยอะมากๆ
-    public techStack: string[];
-
-    constructor(title: string, sections: string[], techStack: string[]) {
-        this.title = title;
-        this.sections = sections;
-        this.techStack = techStack;
+    constructor(
+        private title: string,
+        private sections: string[], // สมมติว่าเป็นเนื้อหาที่เยอะมากๆ
+        private techStack: string[]
+    ) {
         // Simulation: Complex initialization logic (e.g., fetching templates from DB)
         console.log(`[System] Initializing heavy document: ${this.title}`);
+    }
+
+    private static cloneArray<T>(items: T[]): T[] {
+        return [...items];
     }
 
     // 3. The Implementation of Prototype Pattern
     public clone(): SDLCProjectDocument {
         // Deep Copy Logic: จำเป็นมากสำหรับ Array/Object เพื่อไม่ให้ Reference ชนกัน
-        const clonedSections = [...this.sections];
-        const clonedTechStack = [...this.techStack];
+        const clonedSections = SDLCProjectDocument.cloneArray(this.sections);
+        const clonedTechStack = SDLCProjectDocument.cloneArray(this.techStack);
 
         // Return new instance with copied data
         return new SDLCProjectDocument(
@@ -32,7 +33,7 @@ class SDLCProjectDocument implements Prototype<SDLCProjectDocument> {
     }
 
     public setTechStack(newStack: string[]): void {
-        this.techStack = newStack;
+        this.techStack = [...newStack];
     }
 
     public toString(): string {
