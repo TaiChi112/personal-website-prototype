@@ -17,7 +17,6 @@ class GridLayout implements ILayout {
     }
 }
 
-// ✨ NEW: Timeline Layout (เพิ่มได้ง่าย)
 class TimelineLayout implements ILayout {
     render(): void {
         console.log("📅 Rendering in Timeline Layout");
@@ -50,7 +49,6 @@ class GridLayoutFactory extends LayoutFactory {
     }
 }
 
-// ✨ NEW: Timeline Factory (เพียงสร้าง Factory + register)
 class TimelineLayoutFactory extends LayoutFactory {
     createLayout(): ILayout {
         return new TimelineLayout();
@@ -79,6 +77,10 @@ class LayoutFactoryRegistry {
     // ✅ Factory register ตัวเอง
     public register(factory: LayoutFactory): void {
         const type = factory.getLayoutType();
+        if (this.factories.has(type)) {
+            console.log(`⚠️ Factory for "${type}" already registered. Skipping.`);
+            return;
+        }
         this.factories.set(type, factory);
         console.log(`✓ Registered: ${type} layout`);
     }
@@ -107,8 +109,18 @@ class Page {
         this.currentType = defaultType;
 
         // Initial render
-        const factory = this.registry.getFactory(defaultType);
-        this.currentLayout = factory!.createLayout();
+        const factory = this.registry.getFactory(defaultType) ?? this.getFallbackFactory();
+        this.currentLayout = factory.createLayout();
+        this.currentType = factory.getLayoutType();
+    }
+
+    private getFallbackFactory(): LayoutFactory {
+        const available = this.registry.getAvailableTypes();
+        if (available.length === 0) {
+            throw new Error("No layout factories registered.");
+        }
+        const fallbackType = available[0];
+        return this.registry.getFactory(fallbackType)!;
     }
 
     // ✅ ไม่ต้อง hard-code type แล้ว - รับ string ธรรมดา
@@ -164,7 +176,7 @@ class User {
 const registry = LayoutFactoryRegistry.getInstance();
 registry.register(new ListLayoutFactory());
 registry.register(new GridLayoutFactory());
-registry.register(new TimelineLayoutFactory());  // ✨ เพิ่มแค่บรรทัดเดียว!
+registry.register(new TimelineLayoutFactory());
 
 // ==========================================
 // 7. CLIENT CODE - Usage Demo
