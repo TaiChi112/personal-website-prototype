@@ -1,10 +1,8 @@
-// ==========================================
-// 1. Product Interface
-// ==========================================
+// product
 interface ILayout {
     render(): void;
 }
-
+// concrete products
 class ListLayout implements ILayout {
     render(): void {
         console.log("   📋 Rendering in List Layout");
@@ -23,13 +21,11 @@ class GridLayout implements ILayout {
     }
 }
 
-// ==========================================
-// 2. Factory Method Pattern (Creator)
-// ==========================================
+// creator
 abstract class LayoutFactory {
     abstract createLayout(): ILayout;
 }
-
+// concrete creators
 class ListLayoutFactory extends LayoutFactory {
     createLayout(): ILayout {
         return new ListLayout();
@@ -42,9 +38,7 @@ class GridLayoutFactory extends LayoutFactory {
     }
 }
 
-// ==========================================
-// 5. User (Interaction Only)
-// ==========================================
+// client
 class User {
     id: string;
     name: string;
@@ -63,5 +57,20 @@ class User {
 
 // Usage
 const alice = new User("1", "Alice");
-alice.useLayout(new ListLayoutFactory());   
-alice.useLayout(new GridLayoutFactory());;   
+alice.useLayout(new ListLayoutFactory());
+
+alice.useLayout(new GridLayoutFactory());
+
+// const listlayout: LayoutFactory = new ListLayoutFactory();
+// listlayout.createLayout().render();
+
+// const gridlayout: LayoutFactory = new GridLayoutFactory();
+// gridlayout.createLayout().render();
+
+/* facotory method component
+    - product: ILayout
+    - concrete products: ListLayout, GridLayout
+    - creator: LayoutFactory
+    - concrete creators: ListLayoutFactory, GridLayoutFactory
+    - client: User
+*/
