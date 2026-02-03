@@ -1,27 +1,19 @@
-// ==========================================
-// 1. Abstract Products (สินค้าที่โรงงานต้องผลิต)
-// ==========================================
+// abstract product
 interface ICard {
     render(): void;
 }
 
-interface IButton { // เพิ่มสินค้าใหม่: ปุ่มกด
+interface IButton {
     click(): void;
 }
 
-// ==========================================
-// 2. Abstract Factory (แม่พิมพ์ของโรงงาน)
-// ==========================================
+// abstract factory
 interface ThemeFactory {
     createCard(): ICard;
-    createButton(): IButton; // โรงงานต้องผลิตปุ่มได้ด้วย
+    createButton(): IButton;
 }
 
-// ==========================================
-// 3. Concrete Products (สินค้าจริง)
-// ==========================================
-
-// --- Modern Family ---
+// concrete products
 class ModernCard implements ICard {
     render(): void { console.log("  🎨 [Modern] Rendering Card with Rounded Corners"); }
 }
@@ -29,18 +21,13 @@ class ModernButton implements IButton {
     click(): void { console.log("  🎨 [Modern] Button Clicked (Ripple Effect)"); }
 }
 
-// --- Classic Family ---
 class ClassicCard implements ICard {
     render(): void { console.log("  📜 [Classic] Rendering Card with Border"); }
 }
 class ClassicButton implements IButton {
     click(): void { console.log("  📜 [Classic] Button Clicked (Simple Click)"); }
 }
-
-// ==========================================
-// 4. Concrete Factories (โรงงานผลิตจริง)
-// ==========================================
-
+// concrete factory
 class ModernThemeFactory implements ThemeFactory {
     createCard(): ICard { return new ModernCard(); }
     createButton(): IButton { return new ModernButton(); }
@@ -50,12 +37,7 @@ class ClassicThemeFactory implements ThemeFactory {
     createCard(): ICard { return new ClassicCard(); }
     createButton(): IButton { return new ClassicButton(); }
 }
-
-// ==========================================
-// 5. Client / Application (ผู้ใช้งานโรงงาน)
-// ==========================================
-
-// User เก็บแค่ Data (SRP: ทำหน้าที่เก็บข้อมูลอย่างเดียว)
+// client
 class User {
     id: string;
     name: string;
@@ -73,6 +55,31 @@ class User {
     }
 }
 
+
 const alice = new User("1", "Alice");
-alice.applyTheme(new ModernThemeFactory());   
-alice.applyTheme(new ClassicThemeFactory()); 
+alice.applyTheme(new ModernThemeFactory());
+alice.applyTheme(new ClassicThemeFactory());
+
+// const WebModernStyle: ThemeFactory = new ModernThemeFactory();
+
+// const modernCard: ICard = WebModernStyle.createCard();
+// const modernButton: IButton = WebModernStyle.createButton();
+
+// modernButton.click();
+// modernCard.render();
+
+// const WebClassicStyle: ThemeFactory = new ClassicThemeFactory();
+
+// const classicCard: ICard = WebClassicStyle.createCard();
+// const classicButton: IButton = WebClassicStyle.createButton();
+
+// classicButton.click();
+// classicCard.render();
+
+/*
+    - abstract product: ICard, IButton
+    - abstract factory: ThemeFactory
+    - concrete product: ModernCard, ModernButton, ClassicCard, ClassicButton
+    - concrete factory: ModernThemeFactory, ClassicThemeFactory
+    - client: User
+*/
