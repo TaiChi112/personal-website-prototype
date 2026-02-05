@@ -35,8 +35,8 @@ classDiagram
         +construct() Product
     }
     
-    Builder <|-- ConcreteBuilder1
-    Builder <|-- ConcreteBuilder2
+    Builder <|-- ConcreteBuilder1: implements
+    Builder <|-- ConcreteBuilder2: implements
     Builder --> Product: creates
     Director --> Builder: uses
     Director --> Product: returns
@@ -46,6 +46,6 @@ classDiagram
 
 ## Description
 - **Product**: Object ที่ต้องสร้างขึ้น
-- **Builder**: Abstract class ที่ define step-by-step building methods
+- **Builder**: Abstract class ที่ define step-by-step building methods **Contain Process of Building**
 - **ConcreteBuilders**: Implementations ของ Builder ที่สร้าง products ด้วยวิธีต่างกัน
 - **Director**: Orchestrates building process ในลำดับที่ถูกต้อง
